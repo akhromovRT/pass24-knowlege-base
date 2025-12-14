@@ -159,10 +159,16 @@
 - Не хранить временные файлы рядом с кодом или в корне; по окончании задачи очищать `temp/`.
 - Добавлять новые временные файлы в `.gitignore` при необходимости.
 
-### 8. .env файлы
-- В `.cursorignore` игнорировать только `.env`, при этом явно разрешить `.env.example`, чтобы пример окружения оставался видимым и доступным для ИИ/IDE:
+### 8. Видимость .env в IDE
 
-  ```
-  .env
-  !.env.example
-  ```
+  Чтобы `.env` был виден в Cursor/VS Code, но не попадал в git:
+
+  1. **`.vscode/settings.json`:**
+     ```json
+     {
+       "explorer.excludeGitIgnore": false,
+       "files.exclude": { "**/.env": false }
+     }
+
+  2. .cursorignore — НЕ добавлять .env (он уже в .gitignore)
+  3. После изменений: Cmd+Shift+P → Reload Window
