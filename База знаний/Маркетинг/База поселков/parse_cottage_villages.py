@@ -21,6 +21,7 @@ import csv
 import json
 import time
 import re
+import os
 from datetime import datetime
 from typing import Dict, List, Optional
 import logging
@@ -59,6 +60,11 @@ HEADERS = {
 # Задержка между запросами (секунды)
 DELAY_MIN = 2
 DELAY_MAX = 5
+
+# Лимиты для предотвращения зависаний
+MAX_SELENIUM_PHONE_ATTEMPTS = 60   # макс. попыток получения телефона через Selenium за один запуск
+MAX_ENRICH = 40                    # макс. записей для обогащения из детальных страниц
+PAGE_LOAD_TIMEOUT = 20             # таймаут загрузки страницы в Selenium (сек)
 
 # Структура полей таблицы согласно инструкции
 FIELDS = [
@@ -112,7 +118,7 @@ class SeleniumPhoneExtractor:
             
             service = Service(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
-            self.driver.set_page_load_timeout(30)
+            self.driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT)
             logger.info("Selenium WebDriver инициализирован успешно")
         except ImportError as e:
             logger.error(f"Selenium не установлен. Установите: pip install selenium webdriver-manager. Ошибка: {e}")
@@ -324,7 +330,8 @@ class VillageParser:
         self.current_date = datetime.now().strftime('%Y-%m-%d')
         self.use_selenium = use_selenium
         self.selenium_extractor = None
-        self.selenium_phones_count = 0  # Счетчик телефонов, полученных через Selenium
+        self.selenium_phones_count = 0       # Счетчик телефонов, полученных через Selenium
+        self.selenium_phone_attempts = 0     # Счетчик попыток (лимит для защиты от зависаний)
         
         if self.use_selenium:
             try:
@@ -336,6 +343,14 @@ class VillageParser:
     def delay(self):
         """Случайная задержка между запросами"""
         time.sleep(random.uniform(DELAY_MIN, DELAY_MAX))
+    
+    def _can_do_selenium_phone(self) -> bool:
+        """Проверка лимита попыток получения телефона через Selenium (защита от зависаний)."""
+        if self.selenium_phone_attempts >= MAX_SELENIUM_PHONE_ATTEMPTS:
+            logger.info(f"Достигнут лимит попыток Selenium ({MAX_SELENIUM_PHONE_ATTEMPTS}). Пропуск получения телефонов.")
+            return False
+        self.selenium_phone_attempts += 1
+        return True
     
     def extract_phone(self, text: str) -> Optional[str]:
         """Извлечение телефона из текста"""
@@ -761,10 +776,9 @@ class VillageParser:
                     village['Телефон основной'] = phone
             
             # Если телефон не найден и есть ссылка на детальную страницу, используем Selenium
-            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor:
+            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
                 try:
                     logger.debug(f"Попытка получить телефон через Selenium для {village.get('Название поселка')}")
-                    # Добавляем задержку перед запросом через Selenium
                     self.delay()
                     phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
                     if phone:
@@ -803,16 +817,79 @@ class VillageParser:
         return None
     
     def parse_domclick(self, region: str = 'moskovskaya-oblast', max_pages: int = 5) -> List[Dict]:
-        """Парсинг DomClick.ru"""
+        """Парсинг DomClick.ru через Selenium (требует авторизацию)"""
         logger.info(f"Начинаем парсинг DomClick.ru для региона: {region}")
         villages = []
         
+        if not self.use_selenium or not self.selenium_extractor:
+            logger.warning("Для парсинга DomClick.ru требуется Selenium")
+            return villages
+        
         try:
+            driver = self.selenium_extractor.driver
+            # DomClick использует поиск по участкам
             base_url = "https://domclick.ru/search"
-            # DomClick может использовать API или другой формат URL
             
-            # Здесь должна быть логика парсинга DomClick
-            # Структура может отличаться от Cian
+            for page in range(1, max_pages + 1):
+                self.delay()
+                
+                # Формируем URL для поиска участков в МО
+                if page == 1:
+                    url = f"{base_url}?region=moscow_region&category=land&object_type=plot"
+                else:
+                    url = f"{base_url}?region=moscow_region&category=land&object_type=plot&page={page}"
+                
+                try:
+                    logger.debug(f"Загрузка страницы {page}: {url}")
+                    driver.get(url)
+                    
+                    # Ждем загрузки
+                    time.sleep(5)
+                    
+                    # Прокручиваем страницу
+                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    time.sleep(2)
+                    
+                    page_source = driver.page_source
+                    soup = BeautifulSoup(page_source, 'html.parser')
+                    
+                    # Проверяем на авторизацию
+                    if 'войти' in page_source.lower() or 'авторизация' in page_source.lower():
+                        logger.warning(f"Требуется авторизация на DomClick.ru для страницы {page}")
+                        break
+                    
+                    # Ищем карточки объявлений
+                    cards = soup.find_all(['div', 'article'], class_=re.compile(r'card|item|offer|snippet', re.I))
+                    
+                    # Фильтруем карточки с упоминаниями поселков
+                    filtered_cards = []
+                    for card in cards:
+                        card_text = card.get_text().lower()
+                        if any(keyword in card_text for keyword in ['поселок', 'коттеджный', 'кп', 'коттеджный поселок']):
+                            filtered_cards.append(card)
+                    
+                    if not filtered_cards:
+                        filtered_cards = cards[:30]  # Берем первые для проверки
+                    
+                    logger.debug(f"Найдено карточек на странице {page}: {len(filtered_cards)}")
+                    
+                    for card in filtered_cards:
+                        village_data = self._parse_domclick_card(card, url)
+                        if village_data and self.validate_village_name(village_data.get('Название поселка', '')):
+                            villages.append(village_data)
+                    
+                    logger.info(f"Обработано страниц: {page}/{max_pages}, найдено поселков: {len([v for v in villages if v])}")
+                    
+                    if not cards:
+                        logger.warning(f"Не найдено карточек на странице {page}")
+                        break
+                        
+                except TimeoutException:
+                    logger.warning(f"Таймаут при загрузке страницы {page} DomClick.ru")
+                    continue
+                except Exception as e:
+                    logger.error(f"Ошибка при парсинге страницы {page} DomClick.ru: {e}")
+                    continue
             
             logger.info(f"Всего найдено поселков на DomClick.ru: {len(villages)}")
         except Exception as e:
@@ -820,20 +897,358 @@ class VillageParser:
         
         return villages
     
+    def _parse_domclick_card(self, card, source_url: str) -> Optional[Dict]:
+        """Парсинг карточки поселка с DomClick.ru"""
+        try:
+            village = {
+                'ID': self.village_id,
+                'Название поселка': None,
+                'Регион': 'Московская область',
+                'Город/Район': None,
+                'Адрес': None,
+                'Координаты': None,
+                'Ссылка на источник': None,
+                'Количество домов/участков': None,
+                'Статус поселка': None,
+                'Наличие ограждения': None,
+                'Наличие КПП': None,
+                'Количество КПП': None,
+                'Наличие охраны': None,
+                'Тип охраны': None,
+                'Наличие интернета': None,
+                'Тип управления': None,
+                'Название УК/ТСЖ': None,
+                'ФИО председателя/руководителя': None,
+                'Телефон основной': None,
+                'Телефон дополнительный': None,
+                'Email': None,
+                'Сайт поселка/УК': None,
+                'Социальные сети': None,
+                'Challenges (Проблемы)': None,
+                'Authority (Полномочия)': 'Неизвестно',
+                'Money (Бюджет)': 'Неизвестно',
+                'Priority (Приоритет)': 'Неизвестно',
+                'Оценка целевого клиента': 'Требует проверки',
+                'Статус в CRM': 'Не обработан',
+                'ID сделки в CRM': None,
+                'Менеджер': None,
+                'Дата первого контакта': None,
+                'Дата последнего контакта': None,
+                'Следующий контакт': None,
+                'Комментарии': None,
+                'Результат': 'Не обработан',
+                'Дата продажи': None,
+                'Сумма сделки': None,
+                'Причина отказа': None,
+                'Источник информации': 'DomClick.ru',
+                'Дата добавления в базу': self.current_date,
+                'Дата последнего обновления': self.current_date,
+                'Кто добавил': 'Парсер'
+            }
+            
+            card_text = card.get_text()
+            
+            # Поиск ссылки
+            link = card.find('a', href=True)
+            if link:
+                href = link.get('href', '')
+                if href.startswith('/'):
+                    href = urljoin('https://domclick.ru', href)
+                elif not href.startswith('http'):
+                    href = urljoin('https://domclick.ru', '/' + href)
+                village['Ссылка на источник'] = href
+            
+            # Поиск названия
+            title_elem = card.find(['h2', 'h3', 'h4', 'a'], class_=re.compile(r'title|name|heading', re.I))
+            if not title_elem:
+                title_elem = card.find(['h2', 'h3', 'h4'])
+            
+            if title_elem:
+                title_text = title_elem.get_text(strip=True)
+                if self.validate_village_name(title_text):
+                    village['Название поселка'] = title_text
+            
+            # Если не нашли, ищем в тексте
+            if not village.get('Название поселка'):
+                text_lines = [line.strip() for line in card_text.split('\n') if line.strip()]
+                for line in text_lines[:10]:
+                    if 'поселок' in line.lower() or 'коттеджный' in line.lower():
+                        line_clean = re.sub(r'[^\w\s\-]', '', line).strip()
+                        if self.validate_village_name(line_clean) and len(line_clean) > 5:
+                            village['Название поселка'] = line_clean
+                            break
+            
+            # Поиск адреса
+            address_elem = card.find(['span', 'div'], class_=re.compile(r'address|location|geo', re.I))
+            if address_elem:
+                village['Адрес'] = address_elem.get_text(strip=True)
+            
+            # Поиск телефона
+            phone = self.extract_phone(card_text)
+            if phone:
+                village['Телефон основной'] = phone
+            
+            # Если телефон не найден и есть ссылка, используем Selenium
+            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
+                try:
+                    self.delay()
+                    phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
+                    if phone:
+                        village['Телефон основной'] = phone
+                        self.selenium_phones_count += 1
+                except Exception as e:
+                    logger.debug(f"Ошибка при получении телефона через Selenium: {e}")
+            
+            if not village['Название поселка'] or not self.validate_village_name(village['Название поселка']):
+                return None
+            
+            self.village_id += 1
+            return village
+            
+        except Exception as e:
+            logger.debug(f"Ошибка при парсинге карточки DomClick.ru: {e}")
+            return None
+    
     def parse_yandex_realty(self, region: str = 'moskovskaya-oblast', max_pages: int = 5) -> List[Dict]:
-        """Парсинг Яндекс.Недвижимость"""
+        """Парсинг Яндекс.Недвижимость через Selenium (динамический контент)"""
         logger.info(f"Начинаем парсинг Яндекс.Недвижимость для региона: {region}")
         villages = []
         
+        if not self.use_selenium or not self.selenium_extractor:
+            logger.warning("Для парсинга Яндекс.Недвижимость требуется Selenium")
+            return villages
+        
         try:
-            base_url = "https://realty.yandex.ru/moskva_i_mo/kupit/uchastok/"
-            # Яндекс.Недвижимость может использовать динамический контент
+            # Яндекс.Недвижимость использует динамический контент, нужен Selenium
+            # Используем страницу с коттеджными поселками, а не отдельными участками
+            base_url = "https://realty.yandex.ru/moskva_i_mo/kupit/kottedzhnye-poselki/"
+            
+            driver = self.selenium_extractor.driver
+            
+            for page in range(1, max_pages + 1):
+                self.delay()
+                
+                if page == 1:
+                    url = base_url
+                else:
+                    url = f"{base_url}?page={page}"
+                
+                try:
+                    logger.debug(f"Загрузка страницы {page}: {url}")
+                    driver.get(url)
+                    
+                    # Ждем загрузки контента (увеличиваем таймаут)
+                    try:
+                        WebDriverWait(driver, 20).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, "article, .offer, .item, [data-test], .OffersSerp, .OffersSerpItem"))
+                        )
+                    except TimeoutException:
+                        # Пробуем найти любые элементы на странице
+                        logger.debug("Ожидание загрузки контента...")
+                        self.delay()
+                        time.sleep(2)
+                    
+                    # Прокручиваем страницу для загрузки динамического контента
+                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    time.sleep(2)
+                    
+                    # Получаем HTML после загрузки
+                    page_source = driver.page_source
+                    soup = BeautifulSoup(page_source, 'html.parser')
+                    
+                    # Ищем карточки объявлений (разные варианты селекторов для Яндекс.Недвижимость)
+                    cards = soup.find_all(['article', 'div'], class_=re.compile(r'OffersSerpItem|offer|item|card|snippet|SerpItem', re.I))
+                    
+                    # Фильтруем карточки, которые содержат упоминания поселков
+                    filtered_cards = []
+                    for card in cards:
+                        card_text = card.get_text().lower()
+                        # Ищем упоминания поселков в тексте карточки
+                        if any(keyword in card_text for keyword in ['поселок', 'коттеджный', 'кп', 'коттеджный поселок', 'коттеджный посёлок']):
+                            filtered_cards.append(card)
+                    
+                    # Если не нашли через фильтр, используем все карточки
+                    if not filtered_cards and cards:
+                        filtered_cards = cards[:50]  # Ограничиваем количество для проверки
+                    
+                    # Также ищем по data-атрибутам
+                    if not filtered_cards:
+                        cards_by_data = soup.find_all(attrs={'data-test': re.compile(r'offer|item|serp-item', re.I)})
+                        for card in cards_by_data:
+                            card_text = card.get_text().lower()
+                            if any(keyword in card_text for keyword in ['поселок', 'коттеджный', 'кп']):
+                                filtered_cards.append(card)
+                    
+                    # Если все еще не нашли, ищем ссылки на поселки
+                    if not filtered_cards:
+                        links = soup.find_all('a', href=re.compile(r'/offer|/uchastok|/kottedzhnye', re.I))
+                        for link in links:
+                            link_text = link.get_text().lower()
+                            if any(keyword in link_text for keyword in ['поселок', 'коттеджный', 'кп']):
+                                parent = link.find_parent(['div', 'article'])
+                                if parent and parent not in filtered_cards:
+                                    filtered_cards.append(parent)
+                    
+                    logger.info(f"Найдено карточек на странице {page}: {len(filtered_cards)} (из {len(cards)} всего)")
+                    
+                    parsed_count = 0
+                    for card in filtered_cards:
+                        village_data = self._parse_yandex_card(card, url)
+                        if village_data:
+                            if self.validate_village_name(village_data.get('Название поселка', '')):
+                                villages.append(village_data)
+                                parsed_count += 1
+                            else:
+                                logger.debug(f"Карточка не прошла валидацию: название='{village_data.get('Название поселка', 'N/A')}'")
+                    
+                    logger.debug(f"Обработано карточек: {parsed_count} валидных из {len(filtered_cards)}")
+                    
+                    logger.info(f"Обработано страниц: {page}/{max_pages}, найдено поселков: {len([v for v in villages if v])}")
+                    
+                    # Если не нашли карточек, возможно, это последняя страница
+                    if not cards:
+                        logger.warning(f"Не найдено карточек на странице {page}")
+                        break
+                        
+                except TimeoutException:
+                    logger.warning(f"Таймаут при загрузке страницы {page} Яндекс.Недвижимость")
+                    continue
+                except Exception as e:
+                    logger.error(f"Ошибка при парсинге страницы {page} Яндекс.Недвижимость: {e}")
+                    continue
             
             logger.info(f"Всего найдено поселков на Яндекс.Недвижимость: {len(villages)}")
         except Exception as e:
             logger.error(f"Ошибка при парсинге Яндекс.Недвижимость: {e}")
         
         return villages
+    
+    def _parse_yandex_card(self, card, source_url: str) -> Optional[Dict]:
+        """Парсинг карточки поселка с Яндекс.Недвижимость"""
+        try:
+            village = {
+                'ID': self.village_id,
+                'Название поселка': None,
+                'Регион': 'Московская область',
+                'Город/Район': None,
+                'Адрес': None,
+                'Координаты': None,
+                'Ссылка на источник': None,
+                'Количество домов/участков': None,
+                'Статус поселка': None,
+                'Наличие ограждения': None,
+                'Наличие КПП': None,
+                'Количество КПП': None,
+                'Наличие охраны': None,
+                'Тип охраны': None,
+                'Наличие интернета': None,
+                'Тип управления': None,
+                'Название УК/ТСЖ': None,
+                'ФИО председателя/руководителя': None,
+                'Телефон основной': None,
+                'Телефон дополнительный': None,
+                'Email': None,
+                'Сайт поселка/УК': None,
+                'Социальные сети': None,
+                'Challenges (Проблемы)': None,
+                'Authority (Полномочия)': 'Неизвестно',
+                'Money (Бюджет)': 'Неизвестно',
+                'Priority (Приоритет)': 'Неизвестно',
+                'Оценка целевого клиента': 'Требует проверки',
+                'Статус в CRM': 'Не обработан',
+                'ID сделки в CRM': None,
+                'Менеджер': None,
+                'Дата первого контакта': None,
+                'Дата последнего контакта': None,
+                'Следующий контакт': None,
+                'Комментарии': None,
+                'Результат': 'Не обработан',
+                'Дата продажи': None,
+                'Сумма сделки': None,
+                'Причина отказа': None,
+                'Источник информации': 'Яндекс.Недвижимость',
+                'Дата добавления в базу': self.current_date,
+                'Дата последнего обновления': self.current_date,
+                'Кто добавил': 'Парсер'
+            }
+            
+            card_text = card.get_text()
+            
+            # Поиск ссылки
+            link = card.find('a', href=True)
+            if link:
+                href = link.get('href', '')
+                if href.startswith('/'):
+                    href = urljoin('https://realty.yandex.ru', href)
+                elif not href.startswith('http'):
+                    href = urljoin('https://realty.yandex.ru', '/' + href)
+                village['Ссылка на источник'] = href
+            
+            # Поиск названия
+            title_elem = card.find(['h2', 'h3', 'h4', 'a'], class_=re.compile(r'title|name|heading|link|OfferTitle', re.I))
+            if not title_elem:
+                title_elem = card.find(['h2', 'h3', 'h4'])
+            
+            if title_elem:
+                title_text = title_elem.get_text(strip=True)
+                if self.validate_village_name(title_text):
+                    village['Название поселка'] = title_text
+            
+            # Если не нашли, ищем в тексте карточки (приоритет строкам с "поселок")
+            if not village.get('Название поселка'):
+                text_lines = [line.strip() for line in card_text.split('\n') if line.strip()]
+                # Сначала ищем строки с упоминанием поселка
+                for line in text_lines:
+                    if 'поселок' in line.lower() or 'коттеджный' in line.lower():
+                        # Извлекаем название поселка из строки
+                        # Пытаемся найти название до или после слова "поселок"
+                        parts = re.split(r'поселок|коттеджный', line, flags=re.I)
+                        for part in parts:
+                            part_clean = re.sub(r'[^\w\s\-]', '', part).strip()
+                            if self.validate_village_name(part_clean) and len(part_clean) > 5:
+                                village['Название поселка'] = part_clean
+                                break
+                        if village.get('Название поселка'):
+                            break
+                
+                # Если не нашли, ищем любую валидную строку
+                if not village.get('Название поселка'):
+                    for line in text_lines[:10]:
+                        line_clean = re.sub(r'[^\w\s\-]', '', line).strip()
+                        if self.validate_village_name(line_clean) and len(line_clean) > 5:
+                            village['Название поселка'] = line_clean
+                            break
+            
+            # Поиск адреса
+            address_elem = card.find(['span', 'div'], class_=re.compile(r'address|location|geo', re.I))
+            if address_elem:
+                village['Адрес'] = address_elem.get_text(strip=True)
+            
+            # Поиск телефона
+            phone = self.extract_phone(card_text)
+            if phone:
+                village['Телефон основной'] = phone
+            
+            # Если телефон не найден и есть ссылка, используем Selenium
+            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
+                try:
+                    self.delay()
+                    phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
+                    if phone:
+                        village['Телефон основной'] = phone
+                        self.selenium_phones_count += 1
+                except Exception as e:
+                    logger.debug(f"Ошибка при получении телефона через Selenium: {e}")
+            
+            if not village['Название поселка'] or not self.validate_village_name(village['Название поселка']):
+                return None
+            
+            self.village_id += 1
+            return village
+            
+        except Exception as e:
+            logger.debug(f"Ошибка при парсинге карточки Яндекс.Недвижимость: {e}")
+            return None
     
     def parse_cottage_ru(self, max_pages: int = 5) -> List[Dict]:
         """Парсинг Cottage.ru"""
@@ -843,11 +1258,205 @@ class VillageParser:
         try:
             base_url = "https://cottage.ru/poselki"
             
+            # Cottage.ru блокирует requests, используем Selenium
+            use_selenium = self.use_selenium and self.selenium_extractor
+            if use_selenium:
+                driver = self.selenium_extractor.driver
+            
+            for page in range(1, max_pages + 1):
+                self.delay()
+                
+                if page == 1:
+                    url = base_url
+                else:
+                    url = f"{base_url}?page={page}"
+                
+                try:
+                    if use_selenium:
+                        logger.debug(f"Загрузка страницы {page} Cottage.ru через Selenium")
+                        driver.get(url)
+                        time.sleep(5)
+                        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                        time.sleep(2)
+                        page_source = driver.page_source
+                        soup = BeautifulSoup(page_source, 'html.parser')
+                    else:
+                        response = self.session.get(url, timeout=60)
+                        
+                        # Проверяем на блокировку
+                        if response.status_code == 429:
+                            logger.warning(f"Получен код 429 для страницы {page} Cottage.ru. Рекомендуется использовать Selenium.")
+                            time.sleep(15)
+                            response = self.session.get(url, timeout=60)
+                        
+                        response.raise_for_status()
+                        soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # Ищем карточки поселков
+                    cards = soup.find_all(['div', 'article'], class_=re.compile(r'village|poselok|item|card|descr', re.I))
+                    
+                    # Также ищем ссылки на поселки
+                    links = soup.find_all('a', href=re.compile(r'/poselok|/village|/poselki', re.I))
+                    
+                    # Обрабатываем ссылки
+                    processed_links = set()
+                    for link in links:
+                        href = link.get('href', '')
+                        if href in processed_links:
+                            continue
+                        processed_links.add(href)
+                        
+                        parent = link.find_parent(['div', 'article', 'section'])
+                        if not parent:
+                            parent = link
+                        
+                        village_data = self._parse_cottage_card(parent, url, link_href=href)
+                        if village_data and self.validate_village_name(village_data.get('Название поселка', '')):
+                            villages.append(village_data)
+                    
+                    # Обрабатываем карточки
+                    for card in cards:
+                        village_data = self._parse_cottage_card(card, url)
+                        if village_data and self.validate_village_name(village_data.get('Название поселка', '')):
+                            villages.append(village_data)
+                    
+                    logger.info(f"Обработано страниц: {page}/{max_pages}, найдено поселков: {len([v for v in villages if v])}")
+                    
+                    if not cards and not links:
+                        logger.warning(f"Не найдено карточек на странице {page}")
+                        break
+                        
+                except requests.exceptions.Timeout:
+                    logger.warning(f"Таймаут при загрузке страницы {page} Cottage.ru")
+                    continue
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Ошибка сети при парсинге страницы {page} Cottage.ru: {e}")
+                    continue
+                except Exception as e:
+                    logger.error(f"Ошибка при парсинге страницы {page} Cottage.ru: {e}")
+                    continue
+            
             logger.info(f"Всего найдено поселков на Cottage.ru: {len(villages)}")
         except Exception as e:
             logger.error(f"Ошибка при парсинге Cottage.ru: {e}")
         
         return villages
+    
+    def _parse_cottage_card(self, card, source_url: str, link_href: str = None) -> Optional[Dict]:
+        """Парсинг карточки поселка с Cottage.ru"""
+        try:
+            village = {
+                'ID': self.village_id,
+                'Название поселка': None,
+                'Регион': None,
+                'Город/Район': None,
+                'Адрес': None,
+                'Координаты': None,
+                'Ссылка на источник': None,
+                'Количество домов/участков': None,
+                'Статус поселка': None,
+                'Наличие ограждения': None,
+                'Наличие КПП': None,
+                'Количество КПП': None,
+                'Наличие охраны': None,
+                'Тип охраны': None,
+                'Наличие интернета': None,
+                'Тип управления': None,
+                'Название УК/ТСЖ': None,
+                'ФИО председателя/руководителя': None,
+                'Телефон основной': None,
+                'Телефон дополнительный': None,
+                'Email': None,
+                'Сайт поселка/УК': None,
+                'Социальные сети': None,
+                'Challenges (Проблемы)': None,
+                'Authority (Полномочия)': 'Неизвестно',
+                'Money (Бюджет)': 'Неизвестно',
+                'Priority (Приоритет)': 'Неизвестно',
+                'Оценка целевого клиента': 'Требует проверки',
+                'Статус в CRM': 'Не обработан',
+                'ID сделки в CRM': None,
+                'Менеджер': None,
+                'Дата первого контакта': None,
+                'Дата последнего контакта': None,
+                'Следующий контакт': None,
+                'Комментарии': None,
+                'Результат': 'Не обработан',
+                'Дата продажи': None,
+                'Сумма сделки': None,
+                'Причина отказа': None,
+                'Источник информации': 'Cottage.ru',
+                'Дата добавления в базу': self.current_date,
+                'Дата последнего обновления': self.current_date,
+                'Кто добавил': 'Парсер'
+            }
+            
+            card_text = card.get_text()
+            
+            # Поиск ссылки
+            if link_href:
+                if link_href.startswith('/'):
+                    village['Ссылка на источник'] = urljoin('https://cottage.ru', link_href)
+                else:
+                    village['Ссылка на источник'] = link_href
+            else:
+                link = card.find('a', href=re.compile(r'/poselok|/village|/poselki', re.I))
+                if link:
+                    href = link.get('href', '')
+                    if href.startswith('/'):
+                        href = urljoin('https://cottage.ru', href)
+                    village['Ссылка на источник'] = href
+            
+            # Поиск названия
+            title_elem = card.find(['h1', 'h2', 'h3', 'h4', 'a'], class_=re.compile(r'title|name|heading', re.I))
+            if not title_elem:
+                title_elem = card.find(['h1', 'h2', 'h3', 'h4'])
+            
+            if title_elem:
+                title_text = title_elem.get_text(strip=True)
+                if self.validate_village_name(title_text):
+                    village['Название поселка'] = title_text
+            
+            # Если не нашли, ищем в тексте
+            if not village.get('Название поселка'):
+                text_lines = [line.strip() for line in card_text.split('\n') if line.strip()]
+                for line in text_lines[:10]:
+                    if 'поселок' in line.lower() or 'коттеджный' in line.lower():
+                        line_clean = re.sub(r'[^\w\s\-]', '', line).strip()
+                        if self.validate_village_name(line_clean) and len(line_clean) > 5:
+                            village['Название поселка'] = line_clean
+                            break
+            
+            # Поиск адреса
+            address_elem = card.find(['span', 'div'], class_=re.compile(r'address|location|geo', re.I))
+            if address_elem:
+                village['Адрес'] = address_elem.get_text(strip=True)
+            
+            # Поиск телефона
+            phone = self.extract_phone(card_text)
+            if phone:
+                village['Телефон основной'] = phone
+            
+            # Если телефон не найден и есть ссылка, используем Selenium
+            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
+                try:
+                    self.delay()
+                    phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
+                    if phone:
+                        village['Телефон основной'] = phone
+                        self.selenium_phones_count += 1
+                except Exception as e:
+                    logger.debug(f"Ошибка при получении телефона через Selenium: {e}")
+            
+            if not village['Название поселка'] or not self.validate_village_name(village['Название поселка']):
+                return None
+            
+            self.village_id += 1
+            return village
+            
+        except Exception as e:
+            logger.debug(f"Ошибка при парсинге карточки Cottage.ru: {e}")
+            return None
     
     def parse_poselki_ru(self, max_pages: int = 5) -> List[Dict]:
         """Парсинг Poselki.ru"""
@@ -857,25 +1466,462 @@ class VillageParser:
         try:
             base_url = "https://poselki.ru"
             
+            for page in range(1, max_pages + 1):
+                self.delay()
+                if page == 1:
+                    url = base_url
+                else:
+                    url = f"{base_url}?page={page}"
+                
+                try:
+                    response = self.session.get(url, timeout=30)
+                    response.raise_for_status()
+                    
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    
+                    # Поиск ссылок на поселки (основной метод для Poselki.ru)
+                    poselok_links = soup.find_all('a', href=True)
+                    poselok_links = [link for link in poselok_links 
+                                    if ('poselok' in link.get('href', '').lower() or 
+                                        'поселок' in link.get_text().lower() or
+                                        'village' in link.get('href', '').lower()) and
+                                    link.get('href', '').startswith('http')]
+                    
+                    # Также ищем карточки
+                    cards = soup.find_all(['div', 'article'], class_=re.compile(r'village|poselok|item|card|descr', re.I))
+                    
+                    # Обрабатываем ссылки на поселки
+                    processed_links = set()
+                    for link in poselok_links:
+                        href = link.get('href', '')
+                        if href in processed_links:
+                            continue
+                        processed_links.add(href)
+                        
+                        # Находим родительский элемент для получения полной информации
+                        parent = link.find_parent(['div', 'article', 'section'])
+                        if not parent:
+                            parent = link
+                        
+                        village_data = self._parse_poselki_card(parent, url, link_href=href)
+                        if village_data and self.validate_village_name(village_data.get('Название поселка', '')):
+                            villages.append(village_data)
+                    
+                    # Если не нашли через ссылки, обрабатываем карточки
+                    if not villages and cards:
+                        for card in cards:
+                            village_data = self._parse_poselki_card(card, url)
+                            if village_data and self.validate_village_name(village_data.get('Название поселка', '')):
+                                villages.append(village_data)
+                    
+                    logger.info(f"Обработано страниц: {page}/{max_pages}, найдено поселков: {len([v for v in villages if v])}")
+                    
+                    if not cards:
+                        logger.warning(f"Не найдено карточек на странице {page}")
+                        break
+                        
+                except requests.exceptions.Timeout:
+                    logger.warning(f"Таймаут при загрузке страницы {page} Poselki.ru")
+                    continue
+                except requests.exceptions.RequestException as e:
+                    logger.error(f"Ошибка сети при парсинге страницы {page} Poselki.ru: {e}")
+                    continue
+                except Exception as e:
+                    logger.error(f"Ошибка при парсинге страницы {page} Poselki.ru: {e}")
+                    continue
+            
             logger.info(f"Всего найдено поселков на Poselki.ru: {len(villages)}")
         except Exception as e:
             logger.error(f"Ошибка при парсинге Poselki.ru: {e}")
         
         return villages
     
+    def _parse_poselki_card(self, card, source_url: str, link_href: str = None) -> Optional[Dict]:
+        """Парсинг карточки поселка с Poselki.ru"""
+        try:
+            village = {
+                'ID': self.village_id,
+                'Название поселка': None,
+                'Регион': None,
+                'Город/Район': None,
+                'Адрес': None,
+                'Координаты': None,
+                'Ссылка на источник': None,
+                'Количество домов/участков': None,
+                'Статус поселка': None,
+                'Наличие ограждения': None,
+                'Наличие КПП': None,
+                'Количество КПП': None,
+                'Наличие охраны': None,
+                'Тип охраны': None,
+                'Наличие интернета': None,
+                'Тип управления': None,
+                'Название УК/ТСЖ': None,
+                'ФИО председателя/руководителя': None,
+                'Телефон основной': None,
+                'Телефон дополнительный': None,
+                'Email': None,
+                'Сайт поселка/УК': None,
+                'Социальные сети': None,
+                'Challenges (Проблемы)': None,
+                'Authority (Полномочия)': 'Неизвестно',
+                'Money (Бюджет)': 'Неизвестно',
+                'Priority (Приоритет)': 'Неизвестно',
+                'Оценка целевого клиента': 'Требует проверки',
+                'Статус в CRM': 'Не обработан',
+                'ID сделки в CRM': None,
+                'Менеджер': None,
+                'Дата первого контакта': None,
+                'Дата последнего контакта': None,
+                'Следующий контакт': None,
+                'Комментарии': None,
+                'Результат': 'Не обработан',
+                'Дата продажи': None,
+                'Сумма сделки': None,
+                'Причина отказа': None,
+                'Источник информации': 'Poselki.ru',
+                'Дата добавления в базу': self.current_date,
+                'Дата последнего обновления': self.current_date,
+                'Кто добавил': 'Парсер'
+            }
+            
+            card_text = card.get_text()
+            
+            # Поиск ссылки
+            if link_href:
+                village['Ссылка на источник'] = link_href
+            else:
+                link = card.find('a', href=re.compile(r'poselok|village|поселок', re.I))
+                if link:
+                    href = link.get('href', '')
+                    if href.startswith('/'):
+                        href = urljoin('https://poselki.ru', href)
+                    elif not href.startswith('http'):
+                        href = urljoin('https://poselki.ru', '/' + href)
+                    village['Ссылка на источник'] = href
+            
+            # Поиск названия
+            # Сначала ищем в ссылке, если она передана
+            if link_href:
+                # Ищем ссылку с этим href в карточке
+                link_elem = card.find('a', href=link_href)
+                if not link_elem:
+                    # Если не нашли, ищем любую ссылку в карточке
+                    link_elem = card.find('a', href=True)
+                
+                if link_elem:
+                    title_text = link_elem.get_text(strip=True)
+                    # Очищаем текст от лишних символов
+                    title_text = re.sub(r'\s+', ' ', title_text).strip()
+                    # Извлекаем название из текста (убираем лишние слова)
+                    if 'поселок' in title_text.lower():
+                        # Пытаемся извлечь название до или после слова "поселок"
+                        parts = re.split(r'поселок', title_text, flags=re.I)
+                        for part in parts:
+                            part = part.strip()
+                            if len(part) > 5 and self.validate_village_name(part):
+                                title_text = part
+                                break
+                    
+                    if self.validate_village_name(title_text):
+                        village['Название поселка'] = title_text
+            
+            # Если не нашли, ищем в заголовках
+            if not village.get('Название поселка'):
+                title_elem = card.find(['h1', 'h2', 'h3', 'h4'], class_=re.compile(r'title|name|heading', re.I))
+                if not title_elem:
+                    title_elem = card.find(['h1', 'h2', 'h3', 'h4'])
+                
+                if title_elem:
+                    title_text = title_elem.get_text(strip=True)
+                    if self.validate_village_name(title_text):
+                        village['Название поселка'] = title_text
+            
+            # Если все еще не нашли, ищем в тексте карточки
+            if not village.get('Название поселка'):
+                # Ищем текст, который похож на название поселка
+                text_lines = [line.strip() for line in card_text.split('\n') if line.strip()]
+                for line in text_lines[:10]:  # Проверяем первые 10 строк
+                    # Очищаем от лишних символов
+                    line = re.sub(r'[^\w\s\-]', '', line).strip()
+                    if self.validate_village_name(line) and len(line) > 5:
+                        village['Название поселка'] = line
+                        break
+            
+            # Поиск адреса
+            address_elem = card.find(['span', 'div'], class_=re.compile(r'address|location', re.I))
+            if address_elem:
+                village['Адрес'] = address_elem.get_text(strip=True)
+            
+            # Поиск телефона
+            phone = self.extract_phone(card_text)
+            if phone:
+                village['Телефон основной'] = phone
+            
+            # Если телефон не найден и есть ссылка, используем Selenium
+            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
+                try:
+                    self.delay()
+                    phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
+                    if phone:
+                        village['Телефон основной'] = phone
+                        self.selenium_phones_count += 1
+                except Exception as e:
+                    logger.debug(f"Ошибка при получении телефона через Selenium: {e}")
+            
+            if not village['Название поселка'] or not self.validate_village_name(village['Название поселка']):
+                return None
+            
+            self.village_id += 1
+            return village
+            
+        except Exception as e:
+            logger.error(f"Ошибка при парсинге карточки Poselki.ru: {e}")
+            return None
+    
     def parse_avito(self, region: str = 'moskovskaya_oblast', max_pages: int = 5) -> List[Dict]:
-        """Парсинг Авито Недвижимость"""
+        """Парсинг Авито Недвижимость через Selenium (из-за блокировок)"""
         logger.info(f"Начинаем парсинг Авито для региона: {region}")
         villages = []
         
+        # Avito блокирует обычные запросы, используем Selenium
+        if not self.use_selenium or not self.selenium_extractor:
+            logger.warning("Для парсинга Авито рекомендуется использовать Selenium из-за блокировок")
+            # Пробуем без Selenium, но с большими задержками
+            use_selenium = False
+        else:
+            use_selenium = True
+            driver = self.selenium_extractor.driver
+        
         try:
-            base_url = f"https://www.avito.ru/{region}/zemelnye_uchastki/kottedzhnye_poselki"
+            # Используем страницу с земельными участками, там есть коттеджные поселки
+            base_url = f"https://www.avito.ru/{region}/zemelnye_uchastki"
+            
+            for page in range(1, max_pages + 1):
+                self.delay()
+                if page == 1:
+                    url = base_url
+                else:
+                    url = f"{base_url}?p={page}"
+                
+                try:
+                    if use_selenium:
+                        # Используем Selenium для обхода блокировок
+                        logger.debug(f"Загрузка страницы {page} через Selenium: {url}")
+                        driver.get(url)
+                        
+                        # Ждем загрузки
+                        time.sleep(5)
+                        
+                        # Прокручиваем страницу
+                        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                        time.sleep(2)
+                        
+                        page_source = driver.page_source
+                        soup = BeautifulSoup(page_source, 'html.parser')
+                        
+                        # Проверяем на капчу
+                        if 'captcha' in page_source.lower() or 'доступ ограничен' in page_source.lower():
+                            logger.warning(f"Обнаружена капча или блокировка на странице {page} Авито")
+                            break
+                    else:
+                        # Пробуем через обычные запросы с большими задержками
+                        time.sleep(5)  # Увеличиваем задержку
+                        
+                        response = self.session.get(url, timeout=60)
+                        
+                        # Проверяем на блокировку
+                        if response.status_code == 429:
+                            logger.warning(f"Получен код 429 (Too Many Requests) для страницы {page}. Пропускаем.")
+                            time.sleep(15)
+                            continue
+                        
+                        response.raise_for_status()
+                        soup = BeautifulSoup(response.text, 'html.parser')
+                        
+                        # Проверяем на страницу с капчей или блокировкой
+                        if 'captcha' in response.text.lower() or 'доступ ограничен' in response.text.lower():
+                            logger.warning(f"Обнаружена капча или блокировка на странице {page} Авито")
+                            break
+                    
+                    # Поиск карточек объявлений на Авито
+                    # Avito использует data-marker="catalog-serp-item" или "item" для карточек
+                    cards = soup.find_all('div', attrs={'data-marker': re.compile(r'catalog-serp-item|item|card|iva-item', re.I)})
+                    
+                    # Если не нашли по data-marker, ищем по классам
+                    if not cards:
+                        cards = soup.find_all(['div', 'article'], class_=re.compile(r'iva-item|item|card|snippet|serp-item', re.I))
+                    
+                    # Также ищем по структуре - карточки обычно в контейнерах
+                    if not cards:
+                        # Ищем контейнеры с объявлениями
+                        containers = soup.find_all(['div', 'section'], class_=re.compile(r'items|list|catalog|serp', re.I))
+                        for container in containers:
+                            container_cards = container.find_all('div', attrs={'data-marker': True})
+                            cards.extend(container_cards)
+                    
+                    # Фильтруем карточки, которые содержат упоминания поселков
+                    filtered_cards = []
+                    for card in cards:
+                        card_text = card.get_text().lower()
+                        # Ищем упоминания поселков в тексте карточки
+                        if any(keyword in card_text for keyword in ['поселок', 'коттеджный', 'кп', 'коттеджный поселок', 'коттеджный посёлок']):
+                            filtered_cards.append(card)
+                    
+                    # Если не нашли через фильтр, но есть карточки, проверяем их по отдельности
+                    if not filtered_cards and cards:
+                        # Берем первые карточки для проверки
+                        filtered_cards = cards[:30]  # Ограничиваем для проверки
+                    
+                    cards = filtered_cards
+                    logger.debug(f"Найдено карточек на странице {page}: {len(cards)} (из {len(soup.find_all('div', attrs={'data-marker': True}))} всего с data-marker)")
+                    
+                    for card in cards:
+                        village_data = self._parse_avito_card(card, url)
+                        if village_data and self.validate_village_name(village_data.get('Название поселка', '')):
+                            villages.append(village_data)
+                    
+                    logger.info(f"Обработано страниц: {page}/{max_pages}, найдено поселков: {len([v for v in villages if v])}")
+                    
+                    if not cards:
+                        logger.warning(f"Не найдено карточек на странице {page}")
+                        break
+                        
+                except Exception as e:
+                    logger.error(f"Ошибка при парсинге страницы {page} Авито: {e}")
+                    continue
             
             logger.info(f"Всего найдено поселков на Авито: {len(villages)}")
         except Exception as e:
             logger.error(f"Ошибка при парсинге Авито: {e}")
         
         return villages
+    
+    def _parse_avito_card(self, card, source_url: str) -> Optional[Dict]:
+        """Парсинг карточки поселка с Авито"""
+        try:
+            village = {
+                'ID': self.village_id,
+                'Название поселка': None,
+                'Регион': None,
+                'Город/Район': None,
+                'Адрес': None,
+                'Координаты': None,
+                'Ссылка на источник': None,
+                'Количество домов/участков': None,
+                'Статус поселка': None,
+                'Наличие ограждения': None,
+                'Наличие КПП': None,
+                'Количество КПП': None,
+                'Наличие охраны': None,
+                'Тип охраны': None,
+                'Наличие интернета': None,
+                'Тип управления': None,
+                'Название УК/ТСЖ': None,
+                'ФИО председателя/руководителя': None,
+                'Телефон основной': None,
+                'Телефон дополнительный': None,
+                'Email': None,
+                'Сайт поселка/УК': None,
+                'Социальные сети': None,
+                'Challenges (Проблемы)': None,
+                'Authority (Полномочия)': 'Неизвестно',
+                'Money (Бюджет)': 'Неизвестно',
+                'Priority (Приоритет)': 'Неизвестно',
+                'Оценка целевого клиента': 'Требует проверки',
+                'Статус в CRM': 'Не обработан',
+                'ID сделки в CRM': None,
+                'Менеджер': None,
+                'Дата первого контакта': None,
+                'Дата последнего контакта': None,
+                'Следующий контакт': None,
+                'Комментарии': None,
+                'Результат': 'Не обработан',
+                'Дата продажи': None,
+                'Сумма сделки': None,
+                'Причина отказа': None,
+                'Источник информации': 'Авито',
+                'Дата добавления в базу': self.current_date,
+                'Дата последнего обновления': self.current_date,
+                'Кто добавил': 'Парсер'
+            }
+            
+            card_text = card.get_text()
+            
+            # Поиск ссылки (Avito использует data-marker для ссылок)
+            link = card.find('a', href=re.compile(r'/moskovskaya_oblast/zemelnye_uchastki|/kottedzhnye_poselki|/moskva/zemelnye_uchastki', re.I))
+            if not link:
+                # Ищем любую ссылку в карточке
+                link = card.find('a', href=True)
+            
+            if link:
+                href = link.get('href', '')
+                if href.startswith('/'):
+                    href = urljoin('https://www.avito.ru', href)
+                elif not href.startswith('http'):
+                    href = urljoin('https://www.avito.ru', '/' + href)
+                village['Ссылка на источник'] = href
+            
+            # Поиск названия
+            # Avito использует h3 с классом title-root или data-marker="item-title"
+            title_elem = card.find('h3', attrs={'data-marker': re.compile(r'item-title|title', re.I)})
+            if not title_elem:
+                title_elem = card.find(['h3', 'h2'], class_=re.compile(r'title|name|heading', re.I))
+            if not title_elem:
+                title_elem = card.find('a', href=re.compile(r'zemelnye_uchastki|kottedzhnye', re.I))
+            
+            if title_elem:
+                title_text = title_elem.get_text(strip=True)
+                # Очищаем от лишних символов
+                title_text = re.sub(r'\s+', ' ', title_text).strip()
+                if self.validate_village_name(title_text):
+                    village['Название поселка'] = title_text
+            
+            # Если не нашли, ищем в тексте карточки
+            if not village.get('Название поселка'):
+                text_lines = [line.strip() for line in card_text.split('\n') if line.strip()]
+                for line in text_lines[:10]:
+                    if 'поселок' in line.lower() or 'коттеджный' in line.lower():
+                        line_clean = re.sub(r'[^\w\s\-]', '', line).strip()
+                        if self.validate_village_name(line_clean) and len(line_clean) > 5:
+                            village['Название поселка'] = line_clean
+                            break
+            
+            # Поиск адреса
+            address_elem = card.find(['span', 'div'], class_=re.compile(r'address|location|geo', re.I))
+            if address_elem:
+                village['Адрес'] = address_elem.get_text(strip=True)
+            
+            # Поиск телефона
+            phone_elem = card.find(['a', 'span'], href=re.compile(r'tel:', re.I))
+            if phone_elem:
+                phone = phone_elem.get('href', '').replace('tel:', '').strip()
+                village['Телефон основной'] = phone
+            else:
+                phone = self.extract_phone(card_text)
+                if phone:
+                    village['Телефон основной'] = phone
+            
+            # Если телефон не найден и есть ссылка, используем Selenium
+            if not village.get('Телефон основной') and village.get('Ссылка на источник') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
+                try:
+                    self.delay()
+                    phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
+                    if phone:
+                        village['Телефон основной'] = phone
+                        self.selenium_phones_count += 1
+                except Exception as e:
+                    logger.debug(f"Ошибка при получении телефона через Selenium: {e}")
+            
+            if not village['Название поселка'] or not self.validate_village_name(village['Название поселка']):
+                return None
+            
+            self.village_id += 1
+            return village
+            
+        except Exception as e:
+            logger.error(f"Ошибка при парсинге карточки Авито: {e}")
+            return None
     
     def enrich_village_data(self, village: Dict) -> Dict:
         """Дополнение данных о поселке из детальной страницы"""
@@ -884,7 +1930,7 @@ class VillageParser:
         
         try:
             self.delay()
-            response = self.session.get(village['Ссылка на источник'], timeout=30)
+            response = self.session.get(village['Ссылка на источник'], timeout=(10, 25))  # (connect, read)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -975,10 +2021,9 @@ class VillageParser:
                         village['Телефон основной'] = phone
                 
                 # Если телефон все еще не найден, используем Selenium
-                if not village.get('Телефон основной') and self.use_selenium and self.selenium_extractor:
+                if not village.get('Телефон основной') and self.use_selenium and self.selenium_extractor and self._can_do_selenium_phone():
                     try:
                         logger.debug(f"Попытка получить телефон через Selenium для {village.get('Название поселка')}")
-                        # Добавляем задержку перед запросом через Selenium
                         self.delay()
                         phone = self.selenium_extractor.extract_phone_from_url(village['Ссылка на источник'])
                         if phone:
@@ -1045,8 +2090,16 @@ class VillageParser:
         
         # Проверка обязательных критериев
         if village.get('Количество домов/участков'):
-            if village['Количество домов/участков'] >= 20:
-                score += 1
+            try:
+                houses_num = village['Количество домов/участков']
+                if isinstance(houses_num, str):
+                    houses_num = int(houses_num) if houses_num.isdigit() else 0
+                else:
+                    houses_num = int(houses_num) if houses_num else 0
+                if houses_num >= 20:
+                    score += 1
+            except (ValueError, TypeError):
+                pass
         
         if village.get('Наличие ограждения') == 'Да':
             score += 1
@@ -1069,28 +2122,140 @@ class VillageParser:
         else:
             return 'Нецелевой'
     
-    def save_results(self, filename: str = 'Результат парсинга информации в интернете.csv'):
-        """Сохранение результатов в CSV файл"""
+    def load_existing_results(self, filename: str = 'Результат парсинга информации в интернете.csv') -> List[Dict]:
+        """Загрузка существующих результатов из CSV файла"""
+        existing_results = []
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r', encoding='utf-8-sig') as f:
+                    reader = csv.DictReader(f)
+                    existing_results = list(reader)
+                logger.info(f"Загружено существующих записей: {len(existing_results)}")
+            except Exception as e:
+                logger.warning(f"Не удалось загрузить существующие данные: {e}")
+        return existing_results
+    
+    def save_results(self, filename: str = 'Результат парсинга информации в интернете.csv', append: bool = True):
+        """Сохранение результатов в CSV файл
+        
+        Args:
+            filename: Имя файла для сохранения
+            append: Если True, дополняет существующий файл, иначе перезаписывает
+        """
         if not self.results:
             logger.warning("Нет данных для сохранения")
             return
         
         try:
+            # Загружаем существующие данные, если нужно дополнять
+            existing_results = []
+            if append:
+                existing_results = self.load_existing_results(filename)
+            
+            # Объединяем данные: сначала существующие, потом новые
+            all_results = existing_results + self.results
+            
+            # Удаляем дубликаты по названию и адресу
+            unique_results = {}
+            max_id = 0
+            
+            # Сначала находим максимальный ID из существующих записей
+            for village in existing_results:
+                village_id = village.get('ID')
+                if village_id:
+                    try:
+                        if isinstance(village_id, str):
+                            village_id = int(village_id) if village_id.isdigit() else 0
+                        else:
+                            village_id = int(village_id)
+                        max_id = max(max_id, village_id)
+                    except:
+                        pass
+            
+            for village in all_results:
+                # Оценка целевого клиента перед сохранением
+                village['Оценка целевого клиента'] = self.assess_target_client(village)
+                
+                # Получаем ID или присваиваем новый
+                village_id = village.get('ID')
+                if village_id:
+                    try:
+                        if isinstance(village_id, str):
+                            village_id = int(village_id) if village_id.isdigit() else None
+                        else:
+                            village_id = int(village_id)
+                        if village_id:
+                            max_id = max(max_id, village_id)
+                    except:
+                        village_id = None
+                
+                if not village_id:
+                    max_id += 1
+                    village_id = max_id
+                    village['ID'] = village_id
+                
+                # Создаем ключ для дедупликации
+                name = village.get('Название поселка', '').lower().strip()
+                address = village.get('Адрес', '').lower().strip() if village.get('Адрес') else ''
+                name_normalized = re.sub(r'[^\w\s]', '', name)
+                name_normalized = re.sub(r'\s+', ' ', name_normalized).strip()
+                
+                key = (name_normalized, address) if address else (name_normalized,)
+                
+                # Если запись с таким ключом уже есть, выбираем более полную
+                if key in unique_results:
+                    existing = unique_results[key]
+                    # Подсчитываем полноту данных
+                    existing_score = sum(1 for f in ['Адрес', 'Телефон основной', 'Email', 'Количество домов/участков', 'Ссылка на источник'] 
+                                       if existing.get(f))
+                    village_score = sum(1 for f in ['Адрес', 'Телефон основной', 'Email', 'Количество домов/участков', 'Ссылка на источник'] 
+                                      if village.get(f))
+                    
+                    # Если новая запись более полная, заменяем
+                    if village_score > existing_score:
+                        unique_results[key] = village
+                    else:
+                        # Иначе объединяем данные (заполняем пустые поля)
+                        for field in FIELDS:
+                            if not existing.get(field) and village.get(field):
+                                existing[field] = village[field]
+                else:
+                    unique_results[key] = village
+            
+            # Сохраняем все уникальные результаты
             with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
                 writer = csv.DictWriter(f, fieldnames=FIELDS, extrasaction='ignore')
                 writer.writeheader()
                 
-                for village in self.results:
-                    # Оценка целевого клиента перед сохранением
-                    village['Оценка целевого клиента'] = self.assess_target_client(village)
+                # Сортируем по ID для сохранения порядка
+                def get_id(v):
+                    try:
+                        id_val = v.get('ID', 0)
+                        if isinstance(id_val, str):
+                            return int(id_val) if id_val.isdigit() else 0
+                        return int(id_val) if id_val else 0
+                    except:
+                        return 0
+                
+                sorted_results = sorted(unique_results.values(), key=get_id)
+                
+                for village in sorted_results:
                     writer.writerow(village)
             
+            new_count = len(self.results)
+            total_count = len(unique_results)
+            added_count = total_count - len(existing_results)
+            
             logger.info(f"Результаты сохранены в файл: {filename}")
-            logger.info(f"Всего записей: {len(self.results)}")
+            logger.info(f"Новых записей: {new_count}")
+            logger.info(f"Добавлено уникальных записей: {added_count}")
+            logger.info(f"Всего записей в файле: {total_count}")
             
             # Статистика
-            target_count = sum(1 for v in self.results if v.get('Оценка целевого клиента') == 'Целевой')
+            target_count = sum(1 for v in unique_results.values() if v.get('Оценка целевого клиента') == 'Целевой')
+            phones_count = sum(1 for v in unique_results.values() if v.get('Телефон основной'))
             logger.info(f"Целевых клиентов: {target_count}")
+            logger.info(f"Записей с телефонами: {phones_count}")
             
         except Exception as e:
             logger.error(f"Ошибка при сохранении результатов: {e}")
@@ -1213,15 +2378,17 @@ class VillageParser:
         # Обогащение данных из детальных страниц для получения телефонов через Selenium
         logger.info("Обогащение данных из детальных страниц для получения телефонов...")
         enriched_count = 0
-        # Увеличиваем лимит обогащения для получения большего количества телефонов
-        max_enrich = len(self.results)  # Обогащаем все записи для получения телефонов
+        # Лимит обогащения для защиты от зависаний при большом числе записей
+        max_enrich = min(MAX_ENRICH, len(self.results))
         
         for i, village in enumerate(self.results):
             if village.get('Ссылка на источник') and self.is_village_url(village['Ссылка на источник']):
                 # Пропускаем, если телефон уже есть
                 if village.get('Телефон основной'):
                     continue
-                    
+                if enriched_count >= max_enrich:
+                    logger.info(f"Достигнут лимит обогащения ({MAX_ENRICH}). Остальные записи пропущены.")
+                    break
                 try:
                     enriched_village = self.enrich_village_data(village)
                     # Обновляем запись в списке
@@ -1249,8 +2416,8 @@ class VillageParser:
         if self.selenium_extractor:
             self.selenium_extractor.close()
         
-        # Сохранение результатов
-        self.save_results()
+        # Сохранение результатов (дополняем существующий файл)
+        self.save_results(append=True)
 
 
 def main():
