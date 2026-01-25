@@ -1,0 +1,27 @@
+2026-01-23 12:46:01,256 - INFO - ====== WebDriver manager ======
+2026-01-23 12:46:05,282 - INFO - Get LATEST chromedriver version for google-chrome
+2026-01-23 12:46:06,238 - INFO - Get LATEST chromedriver version for google-chrome
+2026-01-23 12:46:06,359 - INFO - There is no [mac64] chromedriver "144.0.7559.96" for browser google-chrome "144.0.7559" in cache
+2026-01-23 12:46:06,367 - INFO - Get LATEST chromedriver version for google-chrome
+2026-01-23 12:46:06,716 - INFO - WebDriver version 144.0.7559.96 selected
+2026-01-23 12:46:06,720 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/144.0.7559.96/mac-arm64/chromedriver-mac-arm64.zip
+2026-01-23 12:46:06,720 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/144.0.7559.96/mac-arm64/chromedriver-mac-arm64.zip
+2026-01-23 12:46:08,194 - INFO - Driver downloading response is 200
+2026-01-23 12:46:09,951 - INFO - Get LATEST chromedriver version for google-chrome
+2026-01-23 12:46:10,148 - INFO - Driver has been saved in cache [/Users/alexeykhromov/.wdm/drivers/chromedriver/mac64/144.0.7559.96]
+2026-01-23 12:46:11,715 - INFO - Selenium WebDriver инициализирован успешно
+2026-01-23 12:46:11,716 - INFO - Начинаем парсинг Poselki.ru
+2026-01-23 12:46:16,761 - INFO - Загружена главная страница Poselki.ru
+2026-01-23 12:46:16,763 - INFO - Найдено ссылок на поселки: 17
+2026-01-23 12:46:30,410 - INFO - Добавлен поселок: Клубный поселокна Пестовском водохранилищев окружении леса
+2026-01-23 12:46:38,749 - INFO - Добавлен поселок: самый красивый поселок —поселок, в котором хочется жить
+2026-01-23 12:46:46,503 - INFO - Добавлен поселок: zolotye-sosny.ru
+2026-01-23 12:46:46,503 - INFO - Всего найдено поселков на Poselki.ru: 3
+2026-01-23 12:46:46,507 - INFO - Сохранено 3 новых записей в файл Результат парсинга информации в интернете.csv
+2026-01-23 12:46:46,507 - INFO - Всего записей в файле: 60
+2026-01-23 12:46:46,507 - INFO - Парсинг завершен. Найдено поселков: 3
+2026-01-23 12:46:46,613 - INFO - Selenium WebDriver закрыт
+2026-01-23 12:46:46,616 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError("HTTPConnection(host='localhost', port=64582): Failed to establish a new connection: [Errno 61] Connection refused")': /session/b6e4fd9d793bd6fb0e0e6b8738bc3732
+2026-01-23 12:46:46,616 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError("HTTPConnection(host='localhost', port=64582): Failed to establish a new connection: [Errno 61] Connection refused")': /session/b6e4fd9d793bd6fb0e0e6b8738bc3732
+2026-01-23 12:46:46,617 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError("HTTPConnection(host='localhost', port=64582): Failed to establish a new connection: [Errno 61] Connection refused")': /session/b6e4fd9d793bd6fb0e0e6b8738bc3732
+2026-01-23 12:46:46,617 - INFO - Selenium WebDriver закрыт
