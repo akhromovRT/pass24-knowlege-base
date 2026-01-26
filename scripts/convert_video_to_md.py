@@ -4,15 +4,13 @@
 распознаванием речи и извлечением скриншотов из ключевых моментов.
 
 Автор: DimaTorzok
+Версия: 2.0 (офлайн-режим, без интернет-соединений)
 """
 
 import argparse
-import errno
-import socket
+import os
 import subprocess
 import sys
-import time
-import urllib.error
 from pathlib import Path
 from datetime import datetime
 
@@ -25,51 +23,73 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
-# Повторные попытки при сетевых ошибках (загрузка модели Whisper, tiktoken и т.п.)
+# Проверка наличия модели в локальном кэше (офлайн-режим)
 # ---------------------------------------------------------------------------
 
-def _is_network_error(e):
-    """Проверяет, похожа ли ошибка на сетевую (таймаут, обрыв, DNS, CDN)."""
-    if isinstance(e, (urllib.error.URLError, TimeoutError, ConnectionError)):
-        return True
-    if isinstance(e, OSError):
-        errnos = (
-            errno.ECONNRESET, errno.ETIMEDOUT, errno.ECONNREFUSED,
-            errno.ENETUNREACH, errno.EHOSTUNREACH, errno.EPIPE, errno.ENETRESET,
-        )
-        if getattr(e, 'errno', None) in errnos:
-            return True
-    if getattr(type(e), '__name__', '') == 'timeout' and 'socket' in (getattr(type(e), '__module__', '') or ''):
-        return True
-    s = (str(e) or '').lower()
-    keywords = (
-        'connection', 'timeout', 'timed out', 'max retries', 'retries exceeded',
-        'failed to establish', 'name or service not known', 'connection reset',
-        'broken pipe', 'network is unreachable', 'network unreachable',
-        'ssl', 'certificate', 'temporary failure',
-    )
-    return any(k in s for k in keywords)
+def get_whisper_cache_dir():
+    """Определяет путь к директории кэша Whisper."""
+    # Whisper использует XDG_CACHE_HOME или ~/.cache/whisper
+    cache_home = os.environ.get('XDG_CACHE_HOME')
+    if cache_home:
+        return Path(cache_home) / 'whisper'
+    else:
+        return Path.home() / '.cache' / 'whisper'
 
 
-def _retry_on_network(fn, *args, max_retries=5, delays=(5, 15, 30, 60, 120), **kwargs):
+def check_model_in_cache(model_name):
     """
-    Выполняет fn(*args, **kwargs) с повторными попытками при сетевых ошибках.
-    delays — задержки в секундах перед 2-й, 3-й, ... попыткой.
+    Проверяет наличие модели в локальном кэше.
+    Возвращает путь к файлу модели, если он существует, иначе None.
     """
-    last_exception = None
-    for attempt in range(max_retries):
-        try:
-            return fn(*args, **kwargs)
-        except Exception as e:
-            last_exception = e
-            if not _is_network_error(e) or attempt == max_retries - 1:
-                raise
-            delay = delays[attempt] if attempt < len(delays) else delays[-1]
-            print(f"Ошибка соединения/сети: {e}")
-            print(f"Повтор через {delay} с (попытка {attempt + 1}/{max_retries})...")
-            time.sleep(delay)
-    if last_exception is not None:
-        raise last_exception
+    cache_dir = get_whisper_cache_dir()
+    
+    # Определяем имя файла модели
+    model_file = f"{model_name}.pt"
+    model_path = cache_dir / model_file
+    
+    if model_path.exists() and model_path.is_file():
+        return model_path
+    return None
+
+
+def load_model_offline(model_name):
+    """
+    Загружает модель Whisper из локального кэша (офлайн-режим).
+    Выдает ошибку, если модель не найдена в кэше.
+    """
+    # Проверяем наличие модели в кэше
+    model_path = check_model_in_cache(model_name)
+    
+    if model_path is None:
+        cache_dir = get_whisper_cache_dir()
+        print(f"Ошибка: модель '{model_name}' не найдена в локальном кэше.")
+        print(f"Ожидаемый путь: {cache_dir / f'{model_name}.pt'}")
+        print("\nДля работы в офлайн-режиме необходимо предварительно загрузить модель.")
+        print("Запустите скрипт с интернет-соединением один раз, чтобы загрузить модель в кэш.")
+        print(f"Или загрузите модель вручную в директорию: {cache_dir}")
+        return None
+    
+    print(f"Модель '{model_name}' найдена в локальном кэше: {model_path}")
+    
+    # Загружаем модель из кэша
+    # whisper.load_model() автоматически использует кэш, если модель там есть
+    # Поскольку мы уже проверили наличие модели, она будет загружена из кэша без сетевых запросов
+    try:
+        # Whisper автоматически использует кэш из ~/.cache/whisper/ или XDG_CACHE_HOME/whisper/
+        # Если модель есть в кэше, сетевых запросов не будет
+        model = whisper.load_model(model_name)
+        print(f"✓ Модель '{model_name}' загружена из локального кэша (офлайн-режим)")
+        return model
+    except Exception as e:
+        error_msg = str(e).lower()
+        # Проверяем, не связана ли ошибка с попыткой загрузки из сети
+        if any(keyword in error_msg for keyword in ['connection', 'network', 'download', 'url', 'http']):
+            print(f"Ошибка: попытка сетевого соединения при загрузке модели.")
+            print(f"Убедитесь, что модель '{model_name}' полностью загружена в кэш.")
+            print(f"Ожидаемый путь: {model_path}")
+        else:
+            print(f"Ошибка при загрузке модели из кэша: {e}")
+        return None
 
 
 def check_ffmpeg():
@@ -173,6 +193,8 @@ def convert_video_to_md(video_path, model_name='base'):
     
     print(f"\nОбработка: {video_path.name}")
     print("=" * 60)
+    print("Режим работы: ОФЛАЙН (без интернет-соединений)")
+    print("=" * 60)
     
     # Определяем пути. Вся работа — только в директории с видео (рабочая директория).
     # Никакие файлы не создаются вне этой папки.
@@ -195,30 +217,19 @@ def convert_video_to_md(video_path, model_name='base'):
     if not has_ffmpeg:
         print("Предупреждение: ffmpeg не найден. Скриншоты не будут извлечены.")
 
-    # Увеличиваем таймаут сокетов для загрузки модели (Whisper качает с Azure CDN без своего timeout).
-    # Это снижает ложные обрывы при медленной или нестабильной сети.
-    _old_timeout = socket.getdefaulttimeout()
-    socket.setdefaulttimeout(600)
-
-    # Загружаем модель Whisper (с повторами при сетевых ошибках)
-    print(f"Загрузка модели Whisper '{model_name}'...")
-    try:
-        model = _retry_on_network(whisper.load_model, model_name)
-    except Exception as e:
-        socket.setdefaulttimeout(_old_timeout)
-        print(f"Ошибка при загрузке модели: {e}")
+    # Загружаем модель Whisper из локального кэша (офлайн-режим)
+    print(f"Загрузка модели Whisper '{model_name}' из локального кэша...")
+    model = load_model_offline(model_name)
+    if model is None:
         return False
 
-    # Распознаём речь (transcribe внутри может вызывать tiktoken/сеть — тоже с retry)
+    # Распознаём речь (офлайн-режим, без сетевых запросов)
     print("Распознавание речи...")
     try:
-        result = _retry_on_network(model.transcribe, str(video_path), language='ru')
+        result = model.transcribe(str(video_path), language='ru')
     except Exception as e:
-        socket.setdefaulttimeout(_old_timeout)
         print(f"Ошибка при распознавании речи: {e}")
         return False
-
-    socket.setdefaulttimeout(_old_timeout)
 
     # Защита от пустого ответа Whisper
     if result is None:
@@ -329,7 +340,8 @@ def convert_video_to_md(video_path, model_name='base'):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Конвертирует видео файлы в Markdown документы с распознаванием речи и извлечением скриншотов.'
+        description='Конвертирует видео файлы в Markdown документы с распознаванием речи и извлечением скриншотов. '
+                    'Работает в офлайн-режиме (без интернет-соединений). Требует предварительной загрузки модели в кэш.'
     )
     parser.add_argument(
         'video_files',
@@ -346,10 +358,19 @@ def main():
     args = parser.parse_args()
 
     # Фильтрация пустых и невалидных путей (защита от "Request is empty" и подобных сбоев)
-    video_files = [p for p in (args.video_files or []) if p is not None and str(p).strip()]
+    video_files = []
+    if args.video_files:
+        for p in args.video_files:
+            if p is not None:
+                p_str = str(p).strip()
+                if p_str and p_str.lower() not in ('none', 'null', ''):
+                    video_files.append(p_str)
+    
     if not video_files:
         print("Ошибка: не указано ни одного файла для конвертации.")
         print("Использование: python3 scripts/convert_video_to_md.py <файл1> [файл2 ...] [--model base]")
+        print("\nПример:")
+        print('  python3 scripts/convert_video_to_md.py "путь/к/видео.mp4"')
         sys.exit(1)
     model = (args.model or '').strip() or 'base'
 
