@@ -16,6 +16,7 @@
 - `agent_docs/logging.md` — логирование скриптов/интеграций.
 - `agent_docs/archiving-and-temp.md` — архивация и временные файлы.
 - `agent_docs/environment-setup.md` — правила настройки окружения; применять при инициализации проекта.
+- `agent_docs/ssh-github-setup.md` — пошаговая настройка SSH-подключения к GitHub для push/pull.
 - `agent_docs/Инструкция по работе с Git.md` — работа с Git в проекте.
 - `agent_docs/pullrequest.md` — процесс и шаблон pull request.
 
