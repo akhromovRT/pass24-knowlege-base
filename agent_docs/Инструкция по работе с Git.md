@@ -57,6 +57,25 @@ git push
 
 ---
 
+## Настройка Git для русского языка (один раз)
+
+Если в истории коммитов на GitHub сообщения отображаются «кракозябрами» (например, `Р РµРіР»Р°РјРµРЅС‚...` вместо «Регламент...»), включите кодировку UTF-8:
+
+```bash
+git config --global i18n.commitEncoding utf-8
+git config --global i18n.logOutputEncoding utf-8
+```
+
+**В PowerShell (Cursor/VS Code):** перед коммитом с русским текстом можно выполнить:
+```powershell
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$env:LC_ALL = "ru_RU.UTF-8"
+```
+
+**Рекомендация:** писать сообщения коммита латиницей (`docs: add daily report regulation`) или после настройки выше — по-русски, тогда отображение будет корректным.
+
+---
+
 ## Полный цикл работы (пример)
 
 Допустим, вы обновили файл `ОП/README.md`:
