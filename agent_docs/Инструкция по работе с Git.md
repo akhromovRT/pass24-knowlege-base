@@ -57,6 +57,25 @@ git push
 
 ---
 
+## Настройка Git для русского языка (один раз)
+
+Если в истории коммитов на GitHub сообщения отображаются «кракозябрами» (например, `Р РµРіР»Р°РјРµРЅС‚...` вместо «Регламент...»), включите кодировку UTF-8:
+
+```bash
+git config --global i18n.commitEncoding utf-8
+git config --global i18n.logOutputEncoding utf-8
+```
+
+**В PowerShell (Cursor/VS Code):** перед коммитом с русским текстом можно выполнить:
+```powershell
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$env:LC_ALL = "ru_RU.UTF-8"
+```
+
+**Рекомендация:** писать сообщения коммита латиницей (`docs: add daily report regulation`) или после настройки выше — по-русски, тогда отображение будет корректным.
+
+---
+
 ## Полный цикл работы (пример)
 
 Допустим, вы обновили файл `ОП/README.md`:
@@ -164,3 +183,25 @@ git push
 ```
 
 **Всё! Этих 4 команд достаточно для 99% случаев.**
+
+---
+
+## Автоматизация: создание Pull Request
+
+После коммита и push можно быстро создать PR одним действием:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/create-pr.ps1
+```
+
+**Что делает скрипт:**
+1. Делает `git push` текущей ветки (если есть что пушить)
+2. Если установлен **GitHub CLI** (`gh`) — создаёт PR в терминале
+3. Если нет — открывает браузер на странице создания PR
+
+**С параметрами:**
+```powershell
+pwsh -File scripts/create-pr.ps1 -Title "Заголовок PR" -Body "Описание"
+```
+
+**Требования:** Находиться в feature-ветке (не в `main`). В Cursor: команда `/create-pr` в чате.
