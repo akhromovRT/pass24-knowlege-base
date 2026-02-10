@@ -19,6 +19,7 @@
 - `agent_docs/ssh-github-setup.md` — пошаговая настройка SSH-подключения к GitHub для push/pull.
 - `agent_docs/Инструкция по работе с Git.md` — работа с Git в проекте.
 - `agent_docs/pullrequest.md` — процесс и шаблон pull request.
+- `agent_docs/Правила защиты базы знаний в GitHub.md` — исчерпывающее руководство по настройке правил защиты базы знаний от неконтролируемых изменений и удаления документов.
 
 ## Шаблоны
 - `agent_docs/templates/architecture.md`
