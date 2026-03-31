@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PASS24 — Медиаплан 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f4f6fb;
+  --surface:#ffffff;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --muted:#64748b;
+  --accent:#16a34a;
+  --accent2:#0ea5e9;
+  --accent3:#f59e0b;
+  --accent4:#8b5cf6;
+  --accent5:#ef4444;
+  --radius:16px;
+  --shadow:0 4px 24px rgba(15,23,42,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;min-height:100vh}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 20px 80px}
+
+/* Header */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:32px}
+.logo-row{display:flex;align-items:center;gap:14px}
+.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#fff;box-shadow:0 4px 16px rgba(22,163,74,.35)}
+.page-title h1{font-size:22px;font-weight:800;letter-spacing:-0.02em;line-height:1.2}
+.page-title p{color:var(--muted);font-size:13px;margin-top:4px;max-width:600px;line-height:1.4}
+.header-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--muted)}
+.badge strong{color:var(--text)}
+.date-badge{padding:8px 16px;background:var(--accent);color:#fff;border-radius:999px;font-size:12px;font-weight:700}
+
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.green::before{background:linear-gradient(90deg,#16a34a,#22c55e)}
+.kpi-card.blue::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.kpi-card.amber::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.kpi-card.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+.kpi-card.red::before{background:linear-gradient(90deg,#ef4444,#f87171)}
+.kpi-card.indigo::before{background:linear-gradient(90deg,#6366f1,#818cf8)}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+.kpi-value{font-size:26px;font-weight:900;letter-spacing:-0.03em;line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+/* Sections */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden}
+.section-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.section-header h2{font-size:15px;font-weight:700;letter-spacing:-0.01em}
+.section-header .pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--muted)}
+.section-body{padding:20px}
+
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.charts-grid{grid-template-columns:1fr}}
+.chart-wrap{position:relative;height:240px}
+
+/* Budget table */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:780px}
+thead th{background:#f8fafc;border-bottom:2px solid var(--border);padding:10px 12px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+thead th:first-child{text-align:left}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums}
+tbody td:first-child{text-align:left;font-weight:600}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+tfoot td{padding:10px 12px;font-weight:800;background:#f0fdf4;border-top:2px solid #bbf7d0;text-align:right}
+tfoot td:first-child{text-align:left}
+.num-green{color:#16a34a}
+.num-blue{color:#0284c7}
+.num-total{color:#0f172a;font-weight:900}
+
+/* Channel cards */
+.ch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.ch-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.ch-grid{grid-template-columns:1fr}}
+.ch-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--bg)}
+.ch-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ch-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ch-name{font-weight:700;font-size:13px;line-height:1.2}
+.ch-budget{font-size:11px;color:var(--muted)}
+.ch-stat{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-top:6px}
+.ch-stat-label{color:var(--muted)}
+.ch-stat-val{font-weight:700}
+.bar-track{height:6px;background:var(--border);border-radius:999px;margin-top:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px}
+
+/* Audience */
+.aud-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:700px){.aud-grid{grid-template-columns:1fr}}
+.aud-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--bg)}
+.aud-tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.aud-title{font-weight:700;font-size:14px;margin-bottom:6px}
+.aud-row{display:flex;gap:6px;font-size:12px;margin-top:4px;align-items:flex-start}
+.aud-key{color:var(--muted);min-width:70px;flex-shrink:0}
+.aud-val{font-weight:500}
+
+/* Priorities */
+.prio-list{display:flex;flex-direction:column;gap:10px}
+.prio-item{display:flex;gap:14px;align-items:flex-start;padding:14px;background:var(--bg);border-radius:12px;border:1px solid var(--border)}
+.prio-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0;color:#fff}
+.prio-body{flex:1}
+.prio-title{font-weight:700;font-size:13px;margin-bottom:3px}
+.prio-desc{font-size:12px;color:var(--muted);line-height:1.45}
+.prio-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
+
+/* KPI table */
+.kpi-table{width:100%;border-collapse:collapse;font-size:13px}
+.kpi-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.kpi-table tr:last-child td{border-bottom:none}
+.kpi-table td:first-child{color:var(--muted);font-size:12px;width:50%}
+.kpi-table td:last-child{font-weight:700;text-align:right}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* Responsive helpers */
+@media(max-width:700px){
+  .charts-grid{grid-template-columns:1fr}
+  .page-title h1{font-size:18px}
+  .kpi-value{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="logo-row">
+        <div class="logo">P</div>
+        <div class="page-title">
+          <h1>Медиаплан продвижения PASS24.online — 2026</h1>
+          <p>Каналы, бюджеты и план квал-лидов. Россия, фокус — Москва и МО. Приоритетный сегмент — коттеджные посёлки.</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="badge"><strong>Бюджет год:</strong> ~5 575 000 ₽</span>
+        <span class="badge"><strong>Квал-лидов:</strong> 3 000</span>
+        <span class="badge"><strong>CPL цел.:</strong> ≤ 3 000 ₽</span>
+        <span class="badge"><strong>Каналов:</strong> 7</span>
+      </div>
+    </div>
+    <div class="date-badge">2026</div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Бюджет год</div>
+      <div class="kpi-value">5 575 000 ₽</div>
+      <div class="kpi-sub">Все каналы вместе</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Квал-лидов план</div>
+      <div class="kpi-value">3 000</div>
+      <div class="kpi-sub">от 75/мес → 350/мес</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">Целевой CPL</div>
+      <div class="kpi-value">≤ 3 000 ₽</div>
+      <div class="kpi-sub">Москва ~3 500–4 000 ₽</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">Сделок план</div>
+      <div class="kpi-value">~240</div>
+      <div class="kpi-sub">8% конверсия квал→оплата</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Динамика по месяцам</h2>
+      <span class="pill">Лиды · Бюджет · Накопленный MRR</span>
+    </div>
+    <div class="section-body">
+      <div class="charts-grid">
+        <div><div class="chart-wrap"><canvas id="leadsChart"></canvas></div></div>
+        <div><div class="chart-wrap"><canvas id="budgetChart"></canvas></div></div>
+        <div><div class="chart-wrap"><canvas id="cumMrrChart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel split chart -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Распределение бюджета по каналам</h2>
+      <span class="pill">Год · 5 575 000 ₽</span>
+    </div>
+    <div class="section-body" style="display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:center">
+      <div style="position:relative;height:260px"><canvas id="pieChart"></canvas></div>
+      <div class="ch-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="ch-card">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#dcfce7">🔍</div>
+            <div><div class="ch-name">Яндекс.Директ (Поиск)</div><div class="ch-budget">2 250 000 ₽/год</div></div>
+          </div>
+          <div class="ch-stat"><span class="ch-stat-label">Доля лидов</span><span class="ch-stat-val" style="color:#16a34a">25%</span></div>
+          <div class="ch-stat"><span class="ch-stat-label">CPL цел.</span><span class="ch-stat-val">3 000 ₽</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:40%;background:#16a34a"></div></div>
+        </div>
+        <div class="ch-card">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#e0f2fe">📈</div>
+            <div><div class="ch-name">SEO (органика)</div><div class="ch-budget">600 000 ₽/год</div></div>
+          </div>
+          <div class="ch-stat"><span class="ch-stat-label">Доля лидов</span><span class="ch-stat-val" style="color:#0ea5e9">30%</span></div>
+          <div class="ch-stat"><span class="ch-stat-label">CPL усл.</span><span class="ch-stat-val">~500 ₽</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:30%;background:#0ea5e9"></div></div>
+        </div>
+        <div class="ch-card">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#fef3c7">🤝</div>
+            <div><div class="ch-name">Партнёрский канал</div><div class="ch-budget">600 000 ₽/год</div></div>
+          </div>
+          <div class="ch-stat"><span class="ch-stat-label">Доля лидов</span><span class="ch-stat-val" style="color:#f59e0b">20%</span></div>
+          <div class="ch-stat"><span class="ch-stat-label">CPL цел.</span><span class="ch-stat-val">1 000 ₽</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:20%;background:#f59e0b"></div></div>
+        </div>
+        <div class="ch-card">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#ede9fe">🎯</div>
+            <div><div class="ch-name">РСЯ + Ретаргетинг</div><div class="ch-budget">750 000 ₽/год</div></div>
+          </div>
+          <div class="ch-stat"><span class="ch-stat-label">Доля лидов</span><span class="ch-stat-val" style="color:#8b5cf6">10%</span></div>
+          <div class="ch-stat"><span class="ch-stat-label">CPL цел.</span><span class="ch-stat-val">2 500 ₽</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:10%;background:#8b5cf6"></div></div>
+        </div>
+        <div class="ch-card">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#fee2e2">📱</div>
+            <div><div class="ch-name">ВКонтакте + Telegram</div><div class="ch-budget">855 000 ₽/год</div></div>
+          </div>
+          <div class="ch-stat"><span class="ch-stat-label">Доля лидов</span><span class="ch-stat-val" style="color:#ef4444">12%</span></div>
+          <div class="ch-stat"><span class="ch-stat-label">CPL цел.</span><span class="ch-stat-val">3 500 ₽</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:12%;background:#ef4444"></div></div>
+        </div>
+        <div class="ch-card">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#e0e7ff">🏢</div>
+            <div><div class="ch-name">Мероприятия</div><div class="ch-budget">500 000 ₽/год</div></div>
+          </div>
+          <div class="ch-stat"><span class="ch-stat-label">Доля лидов</span><span class="ch-stat-val" style="color:#6366f1">3%</span></div>
+          <div class="ch-stat"><span class="ch-stat-label">CPL цел.</span><span class="ch-stat-val">5 500 ₽</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:3%;background:#6366f1"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stacked budget by channel/month -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Бюджет по каналам — помесячно</h2>
+      <span class="pill">Стек-диаграмма</span>
+    </div>
+    <div class="section-body">
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Директ Поиск</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>РСЯ/Ретаргет</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>ВКонтакте</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#06b6d4"></div>Telegram</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Партнёры</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0ea5e9"></div>SEO</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Мероприятия</div>
+      </div>
+      <div style="position:relative;height:300px"><canvas id="stackedChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Budget table -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Сводный бюджет по месяцам</h2>
+      <span class="pill">₽ / месяц</span>
+    </div>
+    <div class="section-body">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left">Месяц</th>
+              <th>Лиды</th>
+              <th>Директ</th>
+              <th>РСЯ/Ретарг.</th>
+              <th>ВКонтакте</th>
+              <th>Telegram</th>
+              <th>Партнёры</th>
+              <th>SEO</th>
+              <th>Мероприятия</th>
+              <th>ИТОГО</th>
+            </tr>
+          </thead>
+          <tbody id="budgetTbody"></tbody>
+          <tfoot id="budgetTfoot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audience segments -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Целевые сегменты и аудитории</h2>
+      <span class="pill">Москва и МО — приоритет</span>
+    </div>
+    <div class="section-body">
+      <div class="aud-grid">
+        <div class="aud-card">
+          <div class="aud-tag" style="background:#dcfce7;color:#15803d">Приоритет 1</div>
+          <div class="aud-title">🏡 Коттеджные посёлки (КП)</div>
+          <div class="aud-row"><span class="aud-key">ЛПР</span><span class="aud-val">Председатель правления ТСН/КП, директор УК</span></div>
+          <div class="aud-row"><span class="aud-key">Боль</span><span class="aud-val">Хаос с пропусками, перегрузка охраны звонками</span></div>
+          <div class="aud-row"><span class="aud-key">Триггер</span><span class="aud-val">Жалобы жителей, смена охраны, новый КПП</span></div>
+          <div class="aud-row"><span class="aud-key">Гео МО</span><span class="aud-val">Новая Рига, Рублёвка, Калуга, Дмитров, Щёлково</span></div>
+          <div class="aud-row"><span class="aud-key">Каналы</span><span class="aud-val">Директ (КП), ВКонтакте (группы посёлков), SEO</span></div>
+        </div>
+        <div class="aud-card">
+          <div class="aud-tag" style="background:#e0f2fe;color:#0369a1">Приоритет 2</div>
+          <div class="aud-title">🏢 ЖК и МКД</div>
+          <div class="aud-row"><span class="aud-key">ЛПР</span><span class="aud-val">Председатель ТСЖ, директор УК, начальник охраны</span></div>
+          <div class="aud-row"><span class="aud-key">Боль</span><span class="aud-val">Курьеры/такси/гости в домофон, конфликты въезда</span></div>
+          <div class="aud-row"><span class="aud-key">Триггер</span><span class="aud-val">Жалобы на хвостовой въезд, смена УК</span></div>
+          <div class="aud-row"><span class="aud-key">Гео МСК</span><span class="aud-val">СЗАО, ЮЗАО, ЦАО — новые ЖК бизнес-класса</span></div>
+          <div class="aud-row"><span class="aud-key">Каналы</span><span class="aud-val">Директ (ЖК), ассоциации ЖКХ, партнёры УК</span></div>
+        </div>
+        <div class="aud-card">
+          <div class="aud-tag" style="background:#fef3c7;color:#b45309">Приоритет 3</div>
+          <div class="aud-title">🏙️ Бизнес-центры и офисы</div>
+          <div class="aud-row"><span class="aud-key">ЛПР</span><span class="aud-val">Управляющий БЦ, директор по эксплуатации</span></div>
+          <div class="aud-row"><span class="aud-key">Боль</span><span class="aud-val">Разные правила арендаторов, нет журнала посетителей</span></div>
+          <div class="aud-row"><span class="aud-key">Гео МСК</span><span class="aud-val">Москва-Сити, Ленинградский пр-т, Павелецкая</span></div>
+          <div class="aud-row"><span class="aud-key">Каналы</span><span class="aud-val">Директ (БЦ), интеграторы, Telegram-каналы</span></div>
+        </div>
+        <div class="aud-card">
+          <div class="aud-tag" style="background:#ede9fe;color:#7c3aed">Партнёрский канал</div>
+          <div class="aud-title">🔗 Интеграторы / УК / ЧОП</div>
+          <div class="aud-row"><span class="aud-key">Тип</span><span class="aud-val">Интеграторы СКУД, УК с 3+ КП, ЧОП, застройщики</span></div>
+          <div class="aud-row"><span class="aud-key">Ценность</span><span class="aud-val">Готовый поток объектов, мультипликатор лидов</span></div>
+          <div class="aud-row"><span class="aud-key">Модель</span><span class="aud-val">3–5 тыс. ₽ за подключение + 10% MRR × 6 мес.</span></div>
+          <div class="aud-row"><span class="aud-key">Цель Q4</span><span class="aud-val">30–50 активных партнёров, 20% лидов от партнёров</span></div>
+          <div class="aud-row"><span class="aud-key">Каналы</span><span class="aud-val">MIPS, Securika, Telegram, прямые переговоры</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel tactics -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Тактика по каналам</h2>
+      <span class="pill">Настройки и приоритеты</span>
+    </div>
+    <div class="section-body">
+      <div class="ch-grid">
+
+        <div class="ch-card" style="background:#f0fdf4;border-color:#bbf7d0">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#dcfce7;font-size:20px">🔍</div>
+            <div>
+              <div class="ch-name">Яндекс.Директ — Поиск</div>
+              <div class="ch-budget">2 250 000 ₽ · 5 кампаний</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <b style="color:var(--text)">Кампании:</b> КП · ЖК/УК · БЦ · Интеграции · Конкуренты<br>
+            <b style="color:var(--text)">Геотаргетинг:</b> Москва+МО приоритет, города 500к+<br>
+            <b style="color:var(--text)">Стратегия:</b> Оплата за конверсию (заявка на демо)<br>
+            <b style="color:var(--text)">Расписание:</b> пн–пт 8:00–20:00<br>
+            <b style="color:var(--text)">Посадочные:</b> отдельный лендинг под каждый сегмент
+          </div>
+        </div>
+
+        <div class="ch-card" style="background:#f0f9ff;border-color:#bae6fd">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#e0f2fe;font-size:20px">📈</div>
+            <div>
+              <div class="ch-name">SEO 2.0</div>
+              <div class="ch-budget">600 000 ₽ · контент+оптимизация</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <b style="color:var(--text)">Кластеры:</b> Интеграции · Решения по сегментам · Сравнения<br>
+            <b style="color:var(--text)">Кейсы:</b> 1 кейс/мес + короткое видео<br>
+            <b style="color:var(--text)">Боли охраны:</b> автоматизация КПП, журнал въезда<br>
+            <b style="color:var(--text)">Региональные:</b> «СКУД Москва КП», «контроль ЖК СПб»<br>
+            <b style="color:var(--text)">Срок первых лидов:</b> Q2–Q3
+          </div>
+        </div>
+
+        <div class="ch-card" style="background:#fffbeb;border-color:#fde68a">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#fef3c7;font-size:20px">🤝</div>
+            <div>
+              <div class="ch-name">Партнёрский канал</div>
+              <div class="ch-budget">600 000 ₽ · материалы + вознаграждения</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <b style="color:var(--text)">Партнёрский кит:</b> презентация + FAQ + ROI-калькулятор<br>
+            <b style="color:var(--text)">Вознаграждение:</b> 3–5 тыс. + 10% MRR × 6 мес. + бонус 5+<br>
+            <b style="color:var(--text)">Q1 цель:</b> 3 подписанных партнёра<br>
+            <b style="color:var(--text)">Q2 цель:</b> 10 активных<br>
+            <b style="color:var(--text)">Q4 цель:</b> 30–50 активных, 20% лидов
+          </div>
+        </div>
+
+        <div class="ch-card" style="background:#fdf4ff;border-color:#e9d5ff">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#ede9fe;font-size:20px">🎯</div>
+            <div>
+              <div class="ch-name">Яндекс РСЯ + Ретаргетинг</div>
+              <div class="ch-budget">750 000 ₽</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <b style="color:var(--text)">Сегменты:</b> Был на лендинге КП/ЖК · Читал кейс · Смотрел /pricing<br>
+            <b style="color:var(--text)">Lookalike:</b> по базе CRM-клиентов<br>
+            <b style="color:var(--text)">Форматы:</b> Баннеры 240×400, 728×90 + смарт-баннеры<br>
+            <b style="color:var(--text)">Запуск:</b> Q2 (после накопления аудиторий Q1)
+          </div>
+        </div>
+
+        <div class="ch-card" style="background:#fff1f2;border-color:#fecdd3">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#fee2e2;font-size:20px">📱</div>
+            <div>
+              <div class="ch-name">ВКонтакте + Telegram Ads</div>
+              <div class="ch-budget">640 + 215 = 855 000 ₽</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <b style="color:var(--text)">VK аудитории:</b> Председатели ТСН/ТСЖ · УК Москвы · Интеграторы<br>
+            <b style="color:var(--text)">VK формат:</b> Карусель с кейсами · Лид-форма · Видео до/после<br>
+            <b style="color:var(--text)">TG нативно:</b> Каналы ЖКХ, управления посёлком, СКУД<br>
+            <b style="color:var(--text)">TG Ads:</b> Подписчики каналов об УК и безопасности
+          </div>
+        </div>
+
+        <div class="ch-card" style="background:#eef2ff;border-color:#c7d2fe">
+          <div class="ch-header">
+            <div class="ch-icon" style="background:#e0e7ff;font-size:20px">🏢</div>
+            <div>
+              <div class="ch-name">Мероприятия (Москва)</div>
+              <div class="ch-budget">500 000 ₽</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <b style="color:var(--text)">MIPS Москва</b> (март) — стенд 150к ₽<br>
+            <b style="color:var(--text)">Securika Moscow</b> (сентябрь) — стенд+доклад 180к ₽<br>
+            <b style="color:var(--text)">Форум УК</b> (апрель–май) — спонсорство 80к ₽<br>
+            <b style="color:var(--text)">Вебинары</b> — 1×квартал, для председателей КП 90к ₽<br>
+            <b style="color:var(--text)">Стенд:</b> живая демо въезда через QR за 10 сек
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Launch priorities -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Приоритеты запуска</h2>
+      <span class="pill">Q1 → Q2 → Q3–Q4</span>
+    </div>
+    <div class="section-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Q1 — Немедленно запустить</div>
+          <div class="prio-list">
+            <div class="prio-item">
+              <div class="prio-num" style="background:#16a34a">1</div>
+              <div class="prio-body">
+                <div class="prio-title">Яндекс.Директ — кампания на КП</div>
+                <div class="prio-desc">Первый приоритет. Самый горячий сегмент, прямые запросы.</div>
+                <div class="prio-meta"><span class="tag" style="background:#dcfce7;color:#15803d">Январь</span></div>
+              </div>
+            </div>
+            <div class="prio-item">
+              <div class="prio-num" style="background:#0ea5e9">2</div>
+              <div class="prio-body">
+                <div class="prio-title">SEO: аудит + 6–8 страниц «Решения»</div>
+                <div class="prio-desc">Технический аудит + контентный кластер по сегментам.</div>
+                <div class="prio-meta"><span class="tag" style="background:#e0f2fe;color:#0369a1">Январь</span></div>
+              </div>
+            </div>
+            <div class="prio-item">
+              <div class="prio-num" style="background:#f59e0b">3</div>
+              <div class="prio-body">
+                <div class="prio-title">Партнёрский кит + первые 3 партнёра</div>
+                <div class="prio-desc">Презентация, FAQ, ROI-калькулятор для переговоров.</div>
+                <div class="prio-meta"><span class="tag" style="background:#fef3c7;color:#b45309">Q1</span></div>
+              </div>
+            </div>
+            <div class="prio-item">
+              <div class="prio-num" style="background:#8b5cf6">4</div>
+              <div class="prio-body">
+                <div class="prio-title">MIPS Москва — стенд (март)</div>
+                <div class="prio-desc">Забронировать стенд, подготовить демо и кейс-пак.</div>
+                <div class="prio-meta"><span class="tag" style="background:#ede9fe;color:#7c3aed">Март</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Q2–Q4 — Масштабирование</div>
+          <div class="prio-list">
+            <div class="prio-item">
+              <div class="prio-num" style="background:#ef4444">5</div>
+              <div class="prio-body">
+                <div class="prio-title">ВКонтакте на подтверждённых аудиториях</div>
+                <div class="prio-desc">Запуск после первых данных по конверсии из Q1.</div>
+                <div class="prio-meta"><span class="tag" style="background:#fee2e2;color:#b91c1c">Апрель</span></div>
+              </div>
+            </div>
+            <div class="prio-item">
+              <div class="prio-num" style="background:#6366f1">6</div>
+              <div class="prio-body">
+                <div class="prio-title">РСЯ ретаргетинг по накопленным аудиториям</div>
+                <div class="prio-desc">Нужны накопленные куки и пиксели с Q1.</div>
+                <div class="prio-meta"><span class="tag" style="background:#e0e7ff;color:#4338ca">Апрель</span></div>
+              </div>
+            </div>
+            <div class="prio-item">
+              <div class="prio-num" style="background:#0ea5e9">7</div>
+              <div class="prio-body">
+                <div class="prio-title">SEO: кластеры «Сравнения» и «Кейсы»</div>
+                <div class="prio-desc">Высокая конверсия из органики. Долгосрочный актив.</div>
+                <div class="prio-meta"><span class="tag" style="background:#e0f2fe;color:#0369a1">Q2–Q3</span></div>
+              </div>
+            </div>
+            <div class="prio-item">
+              <div class="prio-num" style="background:#16a34a">8</div>
+              <div class="prio-body">
+                <div class="prio-title">Масштабировать Директ по работающим кампаниям</div>
+                <div class="prio-desc">Удвоить бюджет кампаний с CPL < 3 000 ₽.</div>
+                <div class="prio-meta"><span class="tag" style="background:#dcfce7;color:#15803d">Q2–Q4</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI control -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Метрики и контроль</h2>
+      <span class="pill">Пороги оптимизации</span>
+    </div>
+    <div class="section-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Еженедельные KPI</div>
+        <table class="kpi-table">
+          <tr><td>Квал-лиды по каналу (план/факт)</td><td>—</td></tr>
+          <tr><td>CPL по кампании Директа</td><td>≤ 3 000 ₽</td></tr>
+          <tr><td>CTR лендингов</td><td>> 3%</td></tr>
+          <tr><td>Конверсия лендинга</td><td>≥ 3%</td></tr>
+          <tr><td>Расход бюджета план/факт</td><td>±10%</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px">Пороги — остановить / пересмотреть</div>
+        <table class="kpi-table">
+          <tr><td>CPL > 5 000 ₽ в кампании 2+ недели</td><td style="color:#ef4444">🛑 Стоп</td></tr>
+          <tr><td>CTR в РСЯ < 1%</td><td style="color:#f59e0b">⚠️ Сменить креатив</td></tr>
+          <tr><td>Лендинг конверсия < 3%</td><td style="color:#f59e0b">⚠️ A/B тест</td></tr>
+          <tr><td>Канал без квал-лидов 3 нед.</td><td style="color:#ef4444">🛑 Перебросить бюджет</td></tr>
+          <tr><td>ROMI канала < 3x за квартал</td><td style="color:#f59e0b">⚠️ Пересмотр</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MONTHS = ['Янв','Фев','Март','Апр','Май','Июнь','Июль','Авг','Сент','Окт','Нояб','Дек'];
+const MONTHS_FULL = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+const DATA = [
+  // leads, direct, rsy, vk, tg, partners, seo, events
+  [75,  90000,  30000, 25000, 10000, 30000, 50000, 0],
+  [100, 100000, 35000, 30000, 15000, 40000, 50000, 0],
+  [125, 110000, 40000, 35000, 15000, 50000, 50000, 150000],
+  [200, 150000, 50000, 45000, 20000, 60000, 50000, 80000],
+  [250, 180000, 60000, 55000, 20000, 60000, 50000, 0],
+  [275, 200000, 65000, 55000, 20000, 60000, 50000, 0],
+  [300, 210000, 70000, 60000, 20000, 50000, 50000, 0],
+  [325, 225000, 75000, 65000, 20000, 50000, 50000, 0],
+  [325, 230000, 75000, 65000, 20000, 50000, 50000, 180000],
+  [325, 240000, 80000, 65000, 25000, 50000, 50000, 0],
+  [350, 260000, 85000, 70000, 25000, 50000, 50000, 45000],
+  [350, 255000, 85000, 70000, 25000, 50000, 50000, 45000],
+];
+
+const MRR = [150000,200000,250000,400000,500000,550000,600000,650000,650000,650000,700000,700000];
+
+const fmtRub = n => new Intl.NumberFormat('ru-RU').format(Math.round(n)) + ' ₽';
+const fmtInt = n => new Intl.NumberFormat('ru-RU').format(Math.round(n));
+
+// Build table
+const tbody = document.getElementById('budgetTbody');
+const tfoot = document.getElementById('budgetTfoot');
+let totals = [0,0,0,0,0,0,0,0,0];
+DATA.forEach((row,i)=>{
+  const total = row[1]+row[2]+row[3]+row[4]+row[5]+row[6]+row[7];
+  totals[0]+=row[0]; totals[1]+=row[1]; totals[2]+=row[2]; totals[3]+=row[3];
+  totals[4]+=row[4]; totals[5]+=row[5]; totals[6]+=row[6]; totals[7]+=row[7]; totals[8]+=total;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${MONTHS_FULL[i]}</td>
+    <td>${fmtInt(row[0])}</td>
+    <td>${fmtRub(row[1])}</td>
+    <td>${fmtRub(row[2])}</td>
+    <td>${fmtRub(row[3])}</td>
+    <td>${fmtRub(row[4])}</td>
+    <td>${fmtRub(row[5])}</td>
+    <td>${fmtRub(row[6])}</td>
+    <td>${row[7]?fmtRub(row[7]):'—'}</td>
+    <td class="num-total">${fmtRub(total)}</td>
+  `;
+  tbody.appendChild(tr);
+});
+const tftr = document.createElement('tr');
+tftr.innerHTML = `
+  <td>ИТОГО</td>
+  <td>${fmtInt(totals[0])}</td>
+  <td>${fmtRub(totals[1])}</td>
+  <td>${fmtRub(totals[2])}</td>
+  <td>${fmtRub(totals[3])}</td>
+  <td>${fmtRub(totals[4])}</td>
+  <td>${fmtRub(totals[5])}</td>
+  <td>${fmtRub(totals[6])}</td>
+  <td>${fmtRub(totals[7])}</td>
+  <td class="num-total">${fmtRub(totals[8])}</td>
+`;
+tfoot.appendChild(tftr);
+
+// Leads chart
+new Chart(document.getElementById('leadsChart'), {
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[{
+      label:'Квал-лиды',
+      data: DATA.map(r=>r[0]),
+      backgroundColor:'rgba(22,163,74,0.15)',
+      borderColor:'#16a34a',
+      borderWidth:2,
+      borderRadius:6,
+    },{
+      type:'line',
+      label:'Тренд',
+      data: DATA.map(r=>r[0]),
+      borderColor:'#16a34a',
+      borderWidth:2,
+      pointRadius:3,
+      pointBackgroundColor:'#16a34a',
+      fill:false,
+      tension:0.4,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y}`}}},
+    scales:{
+      y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10}},title:{display:true,text:'лиды',font:{size:10}}},
+      x:{grid:{display:false},ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// Budget by month chart
+const totalByMonth = DATA.map(r=>r[1]+r[2]+r[3]+r[4]+r[5]+r[6]+r[7]);
+new Chart(document.getElementById('budgetChart'), {
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[{
+      label:'Бюджет ₽',
+      data: totalByMonth,
+      backgroundColor: totalByMonth.map((_,i)=> i<3?'rgba(14,165,233,0.6)': i<6?'rgba(245,158,11,0.6)':'rgba(99,102,241,0.6)'),
+      borderColor: totalByMonth.map((_,i)=> i<3?'#0ea5e9': i<6?'#f59e0b':'#6366f1'),
+      borderWidth:2,
+      borderRadius:6,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>fmtRub(ctx.parsed.y)}}
+    },
+    scales:{
+      y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10},callback:v=>(v/1000)+'к ₽'},title:{display:true,text:'₽',font:{size:10}}},
+      x:{grid:{display:false},ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// Cumulative MRR
+let cumMrr=0;
+const cumMrrData = MRR.map(v=>{cumMrr+=v;return cumMrr;});
+new Chart(document.getElementById('cumMrrChart'), {
+  type:'line',
+  data:{
+    labels:MONTHS,
+    datasets:[{
+      label:'Накопленный новый MRR',
+      data:cumMrrData,
+      borderColor:'#8b5cf6',
+      backgroundColor:'rgba(139,92,246,0.08)',
+      borderWidth:2.5,
+      pointRadius:4,
+      pointBackgroundColor:'#8b5cf6',
+      fill:true,
+      tension:0.4,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmtRub(ctx.parsed.y)}}},
+    scales:{
+      y:{grid:{color:'#f1f5f9'},ticks:{font:{size:10},callback:v=>(v/1000000).toFixed(1)+'M'},title:{display:true,text:'₽',font:{size:10}}},
+      x:{grid:{display:false},ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// Pie chart
+new Chart(document.getElementById('pieChart'), {
+  type:'doughnut',
+  data:{
+    labels:['Директ (Поиск)','SEO','Партнёры','РСЯ/Ретаргет','ВКонтакте','Telegram','Мероприятия'],
+    datasets:[{
+      data:[2250000,600000,600000,750000,640000,215000,500000],
+      backgroundColor:['#16a34a','#0ea5e9','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#6366f1'],
+      borderWidth:2,
+      borderColor:'#fff',
+      hoverOffset:8,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    cutout:'62%',
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.label+': '+fmtRub(ctx.raw)+' ('+Math.round(ctx.raw/5575000*100)+'%)'}}
+    }
+  }
+});
+
+// Stacked bar chart
+new Chart(document.getElementById('stackedChart'), {
+  type:'bar',
+  data:{
+    labels:MONTHS,
+    datasets:[
+      {label:'Директ Поиск',  data:DATA.map(r=>r[1]), backgroundColor:'#16a34a', borderRadius:0},
+      {label:'РСЯ/Ретаргет',  data:DATA.map(r=>r[2]), backgroundColor:'#8b5cf6', borderRadius:0},
+      {label:'ВКонтакте',     data:DATA.map(r=>r[3]), backgroundColor:'#ef4444', borderRadius:0},
+      {label:'Telegram',      data:DATA.map(r=>r[4]), backgroundColor:'#06b6d4', borderRadius:0},
+      {label:'Партнёры',      data:DATA.map(r=>r[5]), backgroundColor:'#f59e0b', borderRadius:0},
+      {label:'SEO',           data:DATA.map(r=>r[6]), backgroundColor:'#0ea5e9', borderRadius:0},
+      {label:'Мероприятия',   data:DATA.map(r=>r[7]), backgroundColor:'#6366f1', borderRadius:{topLeft:4,topRight:4}},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{mode:'index',intersect:false,callbacks:{label:ctx=>ctx.dataset.label+': '+fmtRub(ctx.raw)}}
+    },
+    scales:{
+      x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},
+      y:{stacked:true,grid:{color:'#f1f5f9'},ticks:{font:{size:10},callback:v=>(v/1000)+'к ₽'}}
+    }
+  }
+});
+</script>
+</body>
+</html>

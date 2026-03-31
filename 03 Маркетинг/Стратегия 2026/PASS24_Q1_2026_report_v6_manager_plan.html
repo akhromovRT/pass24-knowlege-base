@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PASS24 — Отчёт за 1 квартал 2026</title>
+<style>
+:root{
+  --bg:#f7f9fc;
+  --card:#ffffff;
+  --text:#0b1220;
+  --muted:#5b667a;
+  --border:#e3e8f2;
+  --accent:#2563eb;
+  --accent2:#16a34a;
+  --warn:#f59e0b;
+  --bad:#ef4444;
+  --shadow:0 10px 30px rgba(15,23,42,.08);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);background:var(--bg);}
+.container{max-width:1400px;margin:0 auto;padding:32px 24px 70px;}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+h1{margin:0;font-size:22px;letter-spacing:-.02em}
+.sub{margin:8px 0 0;color:var(--muted);line-height:1.45;max-width:820px}
+.pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--border);background:rgba(255,255,255,.85);
+  padding:7px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+.pill b{color:var(--text)}
+.grid{display:grid;gap:14px;margin-top:16px}
+.cards{grid-template-columns:repeat(12,1fr)}
+.card{grid-column:span 3;border:1px solid var(--border);background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.big{font-size:22px;font-weight:900}
+.small{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.3}
+.span-6{grid-column:span 6}
+.section{margin-top:16px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);background:var(--card)}
+.titlebar{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.titlebar h2{margin:0;font-size:15px;letter-spacing:-.01em}
+.content{padding:14px 16px}
+table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid var(--border);border-radius:14px}
+thead th{background:#eef3ff;color:#42526b;font-size:12px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);padding:10px;text-align:left}
+tbody td{border-bottom:1px solid var(--border);padding:10px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tfoot td{background:#f8fafc;font-weight:900;padding:10px;border-top:1px solid var(--border)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:#fff;color:var(--muted)}
+.badge.good{border-color:rgba(22,163,74,.35);background:rgba(22,163,74,.08);color:#166534}
+.badge.mid{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10);color:#92400e}
+.badge.bad{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:#991b1b}
+.note{color:var(--muted);font-size:12px;line-height:1.45}
+hr.sep{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+@media (min-width:1600px){
+  .container{max-width:1600px}
+  h1{font-size:26px}
+  .sub{font-size:15px}
+  .grid{gap:16px}
+  .cards{gap:16px}
+  .card{padding:16px}
+  .big{font-size:26px}
+}
+
+@media (max-width:980px){.card{grid-column:span 12} .span-6{grid-column:span 12}}
+
+.tableWrap{overflow:auto;border-radius:14px}
+.tableWrap table{min-width:1150px}
+th.seo, td.seo{min-width:140px}
+
+
+details{border:1px solid var(--border);border-radius:12px;background:#fff;padding:8px 10px}
+details summary{cursor:pointer;font-weight:700}
+details[open]{background:#fbfdff}
+.taskDetails{margin-top:8px;color:var(--text)}
+.taskDetails ul{margin:0;padding-left:18px;line-height:1.5}
+.taskDetails li{margin:4px 0}
+.fileRef{margin:8px 0 0;color:var(--muted);font-size:12px}
+
+
+/* Manager plan section */
+.planGrid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.planCard{grid-column:span 6;border:1px solid var(--border);background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.planCard h3{margin:0 0 10px;font-size:14px;letter-spacing:-.01em}
+.planList{margin:0;padding-left:18px;line-height:1.6}
+.planList li{margin:6px 0}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;font-size:12px;border:1px solid var(--border);background:#fff;color:var(--muted);margin-left:8px;white-space:nowrap}
+.tag.done{border-color:rgba(22,163,74,.35);background:rgba(22,163,74,.08);color:#166534}
+.tag.progress{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10);color:#92400e}
+.tag.not{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:#991b1b}
+.tag.na{border-color:rgba(148,163,184,.6);background:rgba(148,163,184,.10);color:#475569}
+.planNote{margin-top:10px}
+
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>PASS24 — Отчёт о результатах за 1 квартал 2026</h1>
+      <p class="sub">
+        В этом отчёте показаны: <b>план vs факт</b> по MRR‑плану (Q1) и сводка выполненных задач по материалам <code>pass24pro_2026</code>.
+        Факт по Q1: канал «Интернет/SEO» + затраты 40 000 ₽/мес.
+      </p>
+    </div>
+    <div class="pill"><span>Период:</span> <b>январь–март 2026</b></div>
+  </header>
+
+  <div class="grid cards">
+    <div class="card">
+      <h3>Квалы Q1</h3>
+      <div class="big">62 / 300</div>
+      <div class="small">Выполнение плана: <b>20,7%</b></div>
+    </div>
+    <div class="card">
+      <h3>Договоры Q1</h3>
+      <div class="big">5 / 24</div>
+      <div class="small">Выполнение плана: <b>20,8%</b></div>
+    </div>
+    <div class="card">
+      <h3>Новый MRR Q1</h3>
+      <div class="big">131 013 ₽ / 600 000 ₽</div>
+      <div class="small">Выполнение плана: <b>21,8%</b></div>
+    </div>
+    <div class="card">
+      <h3>Конверсия Q1</h3>
+      <div class="big">8,1%</div>
+      <div class="small">Взвешенно: договоры / квал‑лиды</div>
+    </div>
+
+    <div class="card span-6">
+      <h3>Затраты на SEO</h3>
+      <div class="big">120 000 ₽</div>
+      <div class="small">40 000 ₽ × 3 месяца</div>
+    </div>
+    <div class="card span-6">
+      <h3>Эффективность (по факту Q1)</h3>
+      <div class="small">
+        CPL: <b>1 935 ₽</b> • CPA: <b>24 000 ₽</b><br/>
+        ROMI (грубая оценка по MRR в квартале): <b>9,2%</b>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="titlebar">
+      <h2>1) MRR‑план: сравнение план / факт по месяцам (Q1)</h2>
+      <span class="pill"><b>План из модели роста MRR 2026</b></span>
+    </div>
+    <div class="content">
+      <div class="tableWrap"><div class="tableWrap"><table>
+        <thead>
+          <tr>
+            <th>Месяц</th>
+            <th class="num">Квал‑лиды (план)</th>
+            <th class="num">Квал‑лиды (факт)</th>
+            <th class="num">Выполнение</th>
+            <th class="num">Договоры (план)</th>
+            <th class="num">Договоры (факт)</th>
+            <th class="num">Выполнение</th>
+            <th class="num">Новый MRR (план)</th>
+            <th class="num">Новый MRR (факт)</th>
+            <th class="num">Выполнение</th>
+            <th class="num">SEO‑затраты</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>Январь</td>
+            <td class="num">75</td>
+            <td class="num">21</td>
+            <td class="num">28,0%</td>
+            <td class="num">6</td>
+            <td class="num">2</td>
+            <td class="num">33,3%</td>
+            <td class="num">150 000 ₽</td>
+            <td class="num">10 990 ₽</td>
+            <td class="num">7,3%</td>
+            <td class="num seo">40 000 ₽</td>
+          </tr>
+          
+          <tr>
+            <td>Февраль</td>
+            <td class="num">100</td>
+            <td class="num">20</td>
+            <td class="num">20,0%</td>
+            <td class="num">8</td>
+            <td class="num">1</td>
+            <td class="num">12,5%</td>
+            <td class="num">200 000 ₽</td>
+            <td class="num">39 971 ₽</td>
+            <td class="num">20,0%</td>
+            <td class="num seo">40 000 ₽</td>
+          </tr>
+          
+          <tr>
+            <td>Март</td>
+            <td class="num">125</td>
+            <td class="num">21</td>
+            <td class="num">16,8%</td>
+            <td class="num">10</td>
+            <td class="num">2</td>
+            <td class="num">20,0%</td>
+            <td class="num">250 000 ₽</td>
+            <td class="num">80 052 ₽</td>
+            <td class="num">32,0%</td>
+            <td class="num seo">40 000 ₽</td>
+          </tr>
+          
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Итого Q1</td>
+            <td class="num">300</td>
+            <td class="num">62</td>
+            <td class="num">20,7%</td>
+            <td class="num">24</td>
+            <td class="num">5</td>
+            <td class="num">20,8%</td>
+            <td class="num">600 000 ₽</td>
+            <td class="num">131 013 ₽</td>
+            <td class="num">21,8%</td>
+            <td class="num seo">120 000 ₽</td>
+          </tr>
+        </tfoot>
+      </table></div></div>
+      <p class="note" style="margin-top:10px">
+        Примечание: «Новый MRR (факт)» = ваши значения «Сумма сделки (облако) месяц». Это сопоставимо с планом, где новый MRR считается помесячно.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="titlebar">
+      <h2>2) Выполнение задач по гипотезам/плану (по артефактам)</h2>
+      <span class="pill"><b>pass24pro_2026 (март 2026)</b></span>
+    </div>
+    <div class="content">
+      <div class="grid cards">
+        <div class="card span-6" style="grid-column:span 6;box-shadow:none">
+          <h3>Маркетинг / Сайт</h3>
+          <div class="big">81%</div>
+          <div class="small">8 пунктов: 5×100% и 3×50% (черновики/требуют заполнения).</div>
+        </div>
+        <div class="card span-6" style="grid-column:span 6;box-shadow:none">
+          <h3>Воронка продаж / CRM</h3>
+          <div class="big">96%</div>
+          <div class="small">6 пунктов: 5×100% и 1×75% (тексты Sales AI отмечены как «Черновик»).</div>
+        </div>
+      </div>
+
+      <hr class="sep"/>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Направление</th>
+            <th>Задача</th>
+            <th class="num">Статус</th>
+            <th class="num">% готовности</th>
+            <th>Комментарий</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Маркетинг/Сайт</td><td><details><summary>E3 — аудит аналитики pass24pro.ru</summary>
+<div class="taskDetails">
+<ul>
+<li>Целевая воронка: визит → ключевая страница → CTA → форма → лид в CRM.</li>
+<li>Backlog задач с приоритетами и MVP до 24.03 (в т.ч. починка /pricing/ и настройка целей).</li>
+<li>Стандарт UTM и требование прокидывания UTM в Bitrix через hidden fields + webhook.</li>
+</ul>
+<p class="fileRef">Файл: <code>05-E3-Аудит-аналитики-pass24pro.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Воронка, UTM, backlog и MVP.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td><details><summary>E4 — аудит Marketplace + onvis.ru</summary>
+<div class="taskDetails">
+<ul>
+<li>Оценка готовности: pass24market.ru — 2/10 (нельзя лить трафик), onvis.ru — 6/10 (можно с ограничениями).</li>
+<li>P0-блокеры: 404 внутренних страниц, «0» в счётчиках, неизвестный статус форм/CRM, нет аналитики.</li>
+<li>План исправлений до 24.03 с DoD на каждую задачу.</li>
+</ul>
+<p class="fileRef">Файл: <code>06-E4-Аудит-Marketplace-Onvis.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Чеклист готовности и блокеры P0.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td>E6 — AI‑план миграции сайта</td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">AI‑кейсы, DoD, стандарты.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td>E7 — email‑домен SPF/DKIM/DMARC</td><td class="num"><span class="badge mid">Частично</span></td><td class="num">50%</td><td class="note">Нужно заполнить реальные DNS‑данные.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td><details><summary>E8 — миграция пользователей mobile v2</summary>
+<div class="taskDetails">
+<ul>
+<li>Soft-миграция по сегментам (Active-Free → Trial → Active-Paid → Sunset v1).</li>
+<li>Риски: feature gap v1→v2, авторизация, всплеск обращений, rollback.</li>
+<li>KPI: доля v2, retention 7/30, обращения в поддержку, отзывы.</li>
+</ul>
+<p class="fileRef">Файл: <code>12-E8-Миграция-пользователей-mobile-v2.md</code></p>
+</div></details></td><td class="num"><span class="badge mid">Частично</span></td><td class="num">50%</td><td class="note">Нужны фактические размеры сегментов.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td><details><summary>E9 — стратегия миграции сайтов</summary>
+<div class="taskDetails">
+<ul>
+<li>pass24pro.ru — основная витрина, pass24online.ru — поддерживающий канал без развития.</li>
+<li>4 этапа: подготовка → трекинг → переключение трафика → свёртывание старого.</li>
+<li>Критерий завершения: 80–90% нового платного трафика на pass24pro.ru.</li>
+</ul>
+<p class="fileRef">Файл: <code>08-Стратегия-миграции-сайтов.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">План 4 этапа, риски, критерий завершения.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td><details><summary>E10 — стратегия трафика Marketplace</summary>
+<div class="taskDetails">
+<ul>
+<li>Шаблон ICP и оффера для теста; UTM-шаблоны для каналов.</li>
+<li>Тест-план на 2 недели + KPI и стоп-правила; бюджетный потолок (требует утверждения).</li>
+<li>Pre-launch чеклист: форма → CRM → UTM → цель в аналитике → отчёт.</li>
+</ul>
+<p class="fileRef">Файл: <code>14-E10-Стратегия-трафика-Marketplace.md</code></p>
+</div></details></td><td class="num"><span class="badge mid">Частично</span></td><td class="num">50%</td><td class="note">Нужны решения по лицензии и бюджету.</td></tr>
+          <tr><td>Маркетинг/Сайт</td><td><details><summary>Постраничный аудит 18 страниц (pass24online vs pass24pro)</summary>
+<div class="taskDetails">
+<ul>
+<li>Сравнение 18 страниц: pass24online — «каталог», pass24pro — «сайт-продавец».</li>
+<li>Выявлены критические проблемы (например, форма /pricing/), пробелы контента и приоритеты исправлений.</li>
+</ul>
+<p class="fileRef">Файл: <code>02-Сравнение-сайтов-pass24online-vs-pass24pro.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Сравнение pass24online vs pass24pro.</td></tr>
+
+          <tr><td>Воронка/CRM</td><td><details><summary>Sales AI — логика цепочки (12 писем, 2 ветки)</summary>
+<div class="taskDetails">
+<ul>
+<li>12 писем / 30 дней; ветка А (самостоятельно) и ветка Б (подключение менеджера).</li>
+<li>Триггеры менеджера: 5+ входов, посещение /pricing/, кнопка «Нужна помощь», нет входов 3 дня и др.</li>
+<li>Целевое действие: ввод ИНН → автоматическое создание компании и сделки в CRM.</li>
+</ul>
+<p class="fileRef">Файл: <code>03-Логика-цепочки-писем-Sales-AI.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">12 писем, 2 ветки, триггеры.</td></tr>
+          <tr><td>Воронка/CRM</td><td><details><summary>Sales AI — тексты писем</summary>
+<div class="taskDetails">
+<ul>
+<li>Тексты 12 писем (D+0…D+30) + шаблоны уведомлений менеджеру.</li>
+<li>Ключевые письма: onboarding, интеграции, тарифы, ввод ИНН, реактивация.</li>
+</ul>
+<p class="fileRef">Файл: <code>04-Тексты-писем-Sales-AI.md</code></p>
+</div></details></td><td class="num"><span class="badge mid">Почти готово</span></td><td class="num">75%</td><td class="note">Документ помечен как «Черновик».</td></tr>
+          <tr><td>Воронка/CRM</td><td><details><summary>Регламент CRM Bitrix24</summary>
+<div class="taskDetails">
+<ul>
+<li>Источники лидов, обязательные поля (контакт/объект/источник+UTM), статусы лида и критерии квалификации.</li>
+<li>Воронка сделок и правила закрытия; требование сохранять связь лид→сделка для аналитики.</li>
+</ul>
+<p class="fileRef">Файл: <code>07-Регламент-Bitrix-CRM.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Поля, воронки, критерии квалификации.</td></tr>
+          <tr><td>Воронка/CRM</td><td>Онлайн‑чат — логика работы</td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Продажи/поддержка, карточки заявок.</td></tr>
+          <tr><td>Воронка/CRM</td><td><details><summary>Прогрев NEW→DEMO по типам объектов</summary>
+<div class="taskDetails">
+<ul>
+<li>Серия 4 писем, триггер — перевод сделки в QUALIFY, остановка — переход в DEMO.</li>
+<li>Персонализация под тип объекта (ЖК/КП/БЦ/Логистика).</li>
+</ul>
+<p class="fileRef">Файл: <code>15-Серия-писем-Прогрев-по-типам-объектов.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Серия из 4 писем с персонализацией.</td></tr>
+          <tr><td>Воронка/CRM</td><td><details><summary>Офферы и спецусловия A–E</summary>
+<div class="taskDetails">
+<ul>
+<li>Карта офферов на стадиях (скидка, старт по оферте, пилот на одной точке, «месяц в подарок», реактивация).</li>
+<li>Правила: один оффер одновременно, кто согласует, как фиксировать результат в CRM.</li>
+</ul>
+<p class="fileRef">Файл: <code>16-Офферы-и-специальные-условия.md</code></p>
+</div></details></td><td class="num"><span class="badge good">Сделано</span></td><td class="num">100%</td><td class="note">Карта офферов по стадиям.</td></tr>
+        </tbody>
+      </table>
+
+      <p class="note" style="margin-top:10px">
+        Блок Bitrix24‑migration исключён из процента личного выполнения (готов на 100%, но сделан не вами — по вашей ремарке).
+      </p>
+    </div>
+  </section>
+
+  
+<section class="section">
+  <div class="titlebar">
+    <h2>4) План руководителя на Q1 2026 — статус выполнения (мой вклад)</h2>
+    <span class="pill"><b>по структуре целей Q1</b></span>
+  </div>
+  <div class="content">
+    <p class="note" style="margin-top:0">
+      Статусы проставлены по вашим комментариям к плану. Там, где указано «реализуется на новом Bitrix/сайте» — отмечено как <b>в процессе</b>
+      (мой вклад: подготовка сценариев/описаний; внедрение — в рамках миграции).
+    </p>
+
+    <div class="planGrid">
+      <div class="planCard">
+        <h3>Январь — фундамент</h3>
+        <ul class="planList">
+          <li>1.1 Champion Kit <span class="tag done">сделано</span></li>
+          <li>1.2 Структурированное демо <span class="tag done">сделано</span> <span class="tag na">для старого облака</span></li>
+          <li>2.1 Единое КП <span class="tag done">сделано</span></li>
+          <li>2.2 Типовой сценарий внедрения <span class="tag done">сделано</span></li>
+          <li>2.5 FAQ + шаблон для жителей <span class="tag done">сделано</span></li>
+          <li>4.1 Аудит блокеров воронки <span class="tag done">сделано</span></li>
+          <li>4.5 Risk-reversal оффер <span class="tag done">сделано</span></li>
+          <li>5.2 Дашборд маркетинга <span class="tag done">есть</span></li>
+          <li>3.2 Яндекс.Директ <span class="tag not">не запускался</span></li>
+        </ul>
+      </div>
+
+      <div class="planCard">
+        <h3>Февраль — масштабирование</h3>
+        <ul class="planList">
+          <li>1.3 HADI H08 (упрощённый оффер) <span class="tag na">не зафиксировано</span></li>
+          <li>1.4 HADI H03 («результат за 72ч») <span class="tag na">не зафиксировано</span></li>
+          <li>2.3 Кейс-пак (3–5 кейсов) <span class="tag progress">частично</span></li>
+          <li>2.4 ROI-калькулятор для КП <span class="tag progress">частично</span></li>
+          <li>4.2 Упрощение оплаты <span class="tag not">не сделано</span> <span class="tag na">требует доработок</span></li>
+          <li>4.3 Триальный онбординг <span class="tag not">не сделано</span> <span class="tag na">требует доработок</span></li>
+          <li>3.3 Партнёрский канал <span class="tag progress">в процессе</span></li>
+          <li>3.5 Социальное доказательство (отзывы) <span class="tag done">сделано</span></li>
+        </ul>
+      </div>
+
+      <div class="planCard" style="grid-column:span 12">
+        <h3>Март — оптимизация</h3>
+        <ul class="planList">
+          <li>1.5 Автоматизация напоминаний пилота <span class="tag progress">в процессе</span> <span class="tag na">сценарии описаны</span></li>
+          <li>3.4 Email-nurturing для холодных лидов <span class="tag progress">в процессе</span> <span class="tag na">сценарии описаны</span></li>
+          <li>4.4 Материалы для ЛПР по ролям <span class="tag progress">в процессе</span> <span class="tag na">сценарии описаны</span></li>
+        </ul>
+
+        <p class="note planNote">
+          Примечание: задачи 1.3/1.4 отмечены как «не зафиксировано», т.к. по вашим данным они не подтверждены как выполненные или запущенные в Q1.
+          Если нужно — обновлю статусы на «сделано/частично», как только вы дадите один комментарий «делал/не делал» по этим двум пунктам.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+    <div class="titlebar">
+      <h2>5) Итог Q1 — summary</h2>
+      <span class="pill"><b>коротко</b></span>
+    </div>
+    <div class="content">
+      <p style="margin:0;line-height:1.55">
+        За Q1 2026 по каналу «Интернет/SEO» получено <b>62</b> квал‑лида и <b>5</b> договора,
+        конверсия <b>8,1%</b>. Новый MRR составил <b>131 013 ₽</b> при плановом <b>600 000 ₽</b>
+        (выполнение <b>21,8%</b>). Пакет материалов по маркетингу/сайту и CRM‑воронке подготовлен (готовность: <b>81%</b> и <b>96%</b>).
+      </p>
+      <p class="note" style="margin-top:10px">Версия отчёта: v2 • Дата генерации: 2026-03-30</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
