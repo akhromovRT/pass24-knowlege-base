@@ -1,0 +1,421 @@
+/* ==========================================================================
+   PASS24 Homepage Sections
+   Стили для интерактивных компонентов главной страницы.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Секция 2 — Карусель логотипов (чистый CSS, без JS)
+   --------------------------------------------------------------------------
+
+   HTML:
+   <div class="p24-marquee">
+     <div class="p24-marquee__track">
+       <img src="mts.svg" alt="МТС">
+       <img src="mlp.svg" alt="MLP">
+       <img src="sezar.svg" alt="Sezar Group">
+       <img src="sad-kv.svg" alt="Садовые Кварталы">
+       <img src="agalarov.svg" alt="Агаларов Эстейт">
+       <img src="rosinka.svg" alt="Росинка">
+       <img src="amphion.svg" alt="Live Арена Амфион">
+       <!-- Дублировать весь набор для бесшовного скролла -->
+       <img src="mts.svg" alt="МТС">
+       <img src="mlp.svg" alt="MLP">
+       ...
+     </div>
+   </div>
+   -------------------------------------------------------------------------- */
+
+.p24-marquee {
+  overflow: hidden;
+  padding: 24px 0;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+.p24-marquee__track {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  width: max-content;
+  animation: p24-marquee 30s linear infinite;
+}
+
+.p24-marquee__track img {
+  height: 36px;
+  width: auto;
+  opacity: 0.5;
+  filter: grayscale(100%);
+  transition: all var(--p24-transition);
+  flex-shrink: 0;
+}
+
+.p24-marquee__track img:hover {
+  opacity: 1;
+  filter: grayscale(0%);
+}
+
+@keyframes p24-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Пауза при наведении */
+.p24-marquee:hover .p24-marquee__track {
+  animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+  .p24-marquee__track {
+    gap: 32px;
+    animation-duration: 20s;
+  }
+  .p24-marquee__track img {
+    height: 28px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Секция 4, 5 — Табы
+   -------------------------------------------------------------------------- */
+
+.p24-tabs__nav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--p24-border);
+  margin-bottom: 32px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.p24-tabs__trigger {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-family: var(--p24-font-family);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--p24-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--p24-transition);
+}
+
+.p24-tabs__trigger:hover {
+  color: var(--p24-text-primary);
+}
+
+.p24-tabs__trigger.is-active {
+  color: var(--p24-primary);
+  border-bottom-color: var(--p24-primary);
+  font-weight: 600;
+}
+
+.p24-tabs__panel {
+  display: none;
+}
+
+.p24-tabs__panel.is-active {
+  display: block;
+  animation: p24-fadeIn 0.3s ease;
+}
+
+@keyframes p24-fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .p24-tabs__trigger {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Секция 7 — Таблица сравнения
+   -------------------------------------------------------------------------- */
+
+.p24-compare-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--p24-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--p24-border);
+}
+
+.p24-compare-table th,
+.p24-compare-table td {
+  padding: 16px 24px;
+  text-align: left;
+  font-size: 16px;
+  border-bottom: 1px solid var(--p24-border);
+}
+
+.p24-compare-table thead th {
+  background: var(--p24-bg-secondary);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--p24-text-secondary);
+}
+
+/* Колонка «Традиционный» */
+.p24-compare-table td:nth-child(2) {
+  color: var(--p24-text-secondary);
+}
+
+/* Колонка «PASS24» — акцент */
+.p24-compare-table td:nth-child(3) {
+  color: var(--p24-primary);
+  font-weight: 600;
+}
+
+.p24-compare-table tr:last-child td {
+  border-bottom: none;
+}
+
+.p24-compare-table tr:hover td {
+  background: var(--p24-bg-secondary);
+}
+
+@media (max-width: 768px) {
+  .p24-compare-table th,
+  .p24-compare-table td {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Секция 8 — Карусель кейсов
+   -------------------------------------------------------------------------- */
+
+.p24-carousel {
+  position: relative;
+  overflow: hidden;
+}
+
+.p24-carousel__track {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+.p24-carousel__slide {
+  min-width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.p24-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.p24-carousel__prev,
+.p24-carousel__next {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--p24-border);
+  background: var(--p24-bg-primary);
+  color: var(--p24-text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--p24-transition);
+}
+
+.p24-carousel__prev:hover,
+.p24-carousel__next:hover {
+  border-color: var(--p24-primary);
+  color: var(--p24-primary);
+}
+
+.p24-carousel__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.p24-carousel__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: var(--p24-border);
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--p24-transition);
+}
+
+.p24-carousel__dot.is-active {
+  background: var(--p24-primary);
+  transform: scale(1.2);
+}
+
+/* Мульти-слайд на десктопе (3 карточки в ряд) */
+@media (min-width: 1024px) {
+  .p24-carousel__slide {
+    min-width: 33.333%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .p24-carousel__slide {
+    min-width: 50%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Секция 9 — Ротатор отзывов
+   -------------------------------------------------------------------------- */
+
+.p24-testimonials {
+  position: relative;
+  min-height: 200px;
+}
+
+.p24-testimonials__item {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.p24-testimonials__item.is-active {
+  opacity: 1;
+  position: relative;
+  pointer-events: auto;
+}
+
+.p24-testimonials__quote {
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--p24-text-primary);
+  margin: 0 0 24px;
+  max-width: 720px;
+}
+
+.p24-testimonials__quote strong {
+  color: var(--p24-primary);
+}
+
+.p24-testimonials__author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.p24-testimonials__photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.p24-testimonials__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+}
+
+.p24-testimonials__role {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .p24-testimonials__quote {
+    font-size: 17px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Секция 6 — Сетка сегментов (8 карточек)
+   -------------------------------------------------------------------------- */
+
+.p24-segments-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .p24-segments-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .p24-segments-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Карточка сегмента */
+.p24-segment-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-lg);
+  text-decoration: none;
+  color: var(--p24-text-primary);
+  transition: all var(--p24-transition-slow);
+}
+
+.p24-segment-card:hover {
+  border-color: var(--p24-primary);
+  box-shadow: var(--p24-shadow-md);
+  transform: translateY(-2px);
+}
+
+.p24-segment-card__icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.p24-segment-card__title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.p24-segment-card__desc {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+  margin-bottom: 12px;
+  flex-grow: 1;
+}
+
+.p24-segment-card__clients {
+  font-size: 13px;
+  color: var(--p24-primary);
+  font-weight: 500;
+}

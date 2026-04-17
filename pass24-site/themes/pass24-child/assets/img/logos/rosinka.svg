@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 165 44" fill="currentColor">
+  <!-- Droplet accent -->
+  <path d="M10 4 Q10 -2 14 -2 Q18 -2 18 4 Q18 14 14 18 Q10 14 10 4 Z" fill="currentColor" opacity="0.6"/>
+  <circle cx="14" cy="6" r="3" fill="currentColor" opacity="0.25"/>
+  <!-- Text -->
+  <text x="27" y="30" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="24" letter-spacing="3" fill="currentColor">РОСИНКА</text>
+</svg>

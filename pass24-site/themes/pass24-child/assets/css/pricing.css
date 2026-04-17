@@ -1,0 +1,336 @@
+/* ==========================================================================
+   PASS24 Pricing Page
+   Источник: agent_docs/blueprint.md v2.0, раздел 7.2
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Переключатель помесячно / за год
+   -------------------------------------------------------------------------- */
+
+.p24-pricing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.p24-pricing-toggle__label {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--p24-text-secondary);
+  cursor: pointer;
+  transition: color var(--p24-transition);
+}
+
+.p24-pricing-toggle__label.is-active {
+  color: var(--p24-text-primary);
+  font-weight: 600;
+}
+
+.p24-pricing-toggle__switch {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  background: var(--p24-border);
+  border-radius: 14px;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  transition: background var(--p24-transition);
+}
+
+.p24-pricing-toggle__switch.is-yearly {
+  background: var(--p24-primary);
+}
+
+.p24-pricing-toggle__switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  transition: transform var(--p24-transition);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.p24-pricing-toggle__switch.is-yearly::after {
+  transform: translateX(24px);
+}
+
+.p24-pricing-toggle__save {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--p24-accent);
+  background: #D1FAE5;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Сетка тарифов
+   -------------------------------------------------------------------------- */
+
+.p24-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .p24-pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .p24-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Карточка тарифа
+   -------------------------------------------------------------------------- */
+
+.p24-plan {
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--p24-transition-slow);
+}
+
+.p24-plan:hover {
+  box-shadow: var(--p24-shadow-md);
+}
+
+/* Рекомендуемый план */
+.p24-plan--recommended {
+  border-color: var(--p24-primary);
+  border-width: 2px;
+  position: relative;
+  box-shadow: var(--p24-shadow-md);
+}
+
+.p24-plan--recommended::before {
+  content: 'Рекомендуем';
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--p24-primary);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 16px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.p24-plan__name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--p24-text-primary);
+  margin-bottom: 4px;
+}
+
+.p24-plan__desc {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+  margin-bottom: 20px;
+}
+
+.p24-plan__price {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--p24-text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.p24-plan__price-period {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--p24-text-secondary);
+}
+
+.p24-plan__price-yearly {
+  font-size: 14px;
+  color: var(--p24-accent);
+  font-weight: 500;
+  margin-bottom: 24px;
+  min-height: 21px;
+}
+
+.p24-plan__divider {
+  height: 1px;
+  background: var(--p24-border);
+  margin-bottom: 24px;
+}
+
+.p24-plan__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  flex-grow: 1;
+}
+
+.p24-plan__features li {
+  padding: 6px 0;
+  font-size: 15px;
+  color: var(--p24-text-secondary);
+  padding-left: 24px;
+  position: relative;
+}
+
+.p24-plan__features li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--p24-accent);
+  font-weight: 700;
+}
+
+.p24-plan__cta {
+  margin-top: auto;
+}
+
+/* --------------------------------------------------------------------------
+   4. Подключаемые модули
+   -------------------------------------------------------------------------- */
+
+.p24-addons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+
+@media (max-width: 576px) {
+  .p24-addons {
+    grid-template-columns: 1fr;
+  }
+}
+
+.p24-addon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-lg);
+  padding: 24px;
+}
+
+.p24-addon__info {
+  flex: 1;
+}
+
+.p24-addon__name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+  margin-bottom: 4px;
+}
+
+.p24-addon__desc {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   5. FAQ-аккордеон
+   -------------------------------------------------------------------------- */
+
+.p24-faq {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.p24-faq__item {
+  border-bottom: 1px solid var(--p24-border);
+}
+
+.p24-faq__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 0;
+  background: none;
+  border: none;
+  font-family: var(--p24-font-family);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.p24-faq__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: 16px;
+  transition: transform var(--p24-transition);
+}
+
+.p24-faq__item.is-open .p24-faq__icon {
+  transform: rotate(45deg);
+}
+
+.p24-faq__answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.p24-faq__item.is-open .p24-faq__answer {
+  max-height: 500px;
+  padding-bottom: 20px;
+}
+
+.p24-faq__answer p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--p24-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   6. Блок преимуществ (3 колонки)
+   -------------------------------------------------------------------------- */
+
+.p24-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .p24-benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.p24-benefit {
+  text-align: center;
+}
+
+.p24-benefit svg {
+  margin-bottom: 16px;
+}
+
+.p24-benefit .p24-h4 {
+  margin-bottom: 8px;
+}

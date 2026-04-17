@@ -1,0 +1,696 @@
+/* ==========================================================================
+   Products / Продуктовые страницы
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.p24-product-hero {
+  padding: 80px 0 0;
+}
+
+.p24-product-hero__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.p24-product-hero__content .p24-badge {
+  margin-bottom: 16px;
+}
+
+.p24-product-hero__content .p24-h1 {
+  margin-bottom: 16px;
+}
+
+.p24-product-hero__content .p24-subtitle {
+  margin-bottom: 24px;
+}
+
+.p24-product-hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.p24-product-hero__image-wrap {
+  background: var(--p24-bg-secondary);
+  border-radius: var(--p24-radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--p24-border);
+  box-shadow: var(--p24-shadow-lg);
+}
+
+.p24-product-hero__image-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Steps (Как это работает)
+   -------------------------------------------------------------------------- */
+
+.p24-product-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  counter-reset: step;
+}
+
+.p24-product-step {
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.p24-product-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--p24-primary);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.p24-product-step .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-product-step p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Features (Ключевые возможности)
+   -------------------------------------------------------------------------- */
+
+.p24-product-feature {
+  position: relative;
+}
+
+.p24-product-feature__metric {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--p24-primary);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.p24-product-feature .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-product-feature p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   Integrations grid
+   -------------------------------------------------------------------------- */
+
+.p24-product-integrations {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+}
+
+.p24-product-integration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+  transition: all var(--p24-transition);
+}
+
+.p24-product-integration:hover {
+  border-color: var(--p24-primary);
+  box-shadow: var(--p24-shadow-sm);
+}
+
+.p24-product-integration img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(0.3);
+  transition: filter var(--p24-transition);
+}
+
+.p24-product-integration:hover img {
+  filter: grayscale(0);
+}
+
+/* --------------------------------------------------------------------------
+   Use cases (Кому подходит)
+   -------------------------------------------------------------------------- */
+
+.p24-product-usecase {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all var(--p24-transition);
+}
+
+.p24-product-usecase:hover {
+  border-color: var(--p24-primary);
+}
+
+.p24-product-usecase .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-product-usecase p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.p24-product-usecase__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Case study
+   -------------------------------------------------------------------------- */
+
+.p24-product-case {
+  text-align: center;
+  padding: 48px 32px;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+}
+
+.p24-product-case__quote {
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--p24-text-primary);
+  font-style: italic;
+  margin: 24px 0;
+  padding: 0;
+  border: none;
+}
+
+/* --------------------------------------------------------------------------
+   Auto _new: Definition block (AEO — entity definition)
+   -------------------------------------------------------------------------- */
+
+.p24-auto-definition {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--p24-text-secondary);
+  border-left: 3px solid var(--p24-primary);
+  padding: 10px 16px;
+  margin-top: 16px;
+  background: var(--p24-primary-light);
+  border-radius: 0 var(--p24-radius-sm) var(--p24-radius-sm) 0;
+}
+
+.p24-auto-definition strong {
+  color: var(--p24-text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   MBP _new: Benefits bar (3 бенефита)
+   -------------------------------------------------------------------------- */
+
+.p24-mbp-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-mbp-benefit {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-lg);
+}
+
+.p24-mbp-benefit__icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.p24-mbp-benefit .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-mbp-benefit p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   MBP _new: Before / After метрики
+   -------------------------------------------------------------------------- */
+
+.p24-mbp-before-after {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-mbp-ba-item {
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.p24-mbp-ba-item__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+
+.p24-mbp-ba-item__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.p24-mbp-ba-item__before,
+.p24-mbp-ba-item__after {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.p24-mbp-ba-item__value {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.p24-mbp-ba-item__value--before {
+  color: var(--p24-text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: var(--p24-error);
+}
+
+.p24-mbp-ba-item__value--after {
+  color: var(--p24-accent);
+}
+
+.p24-mbp-ba-item__caption {
+  font-size: 12px;
+  color: var(--p24-text-secondary);
+  font-weight: 500;
+}
+
+.p24-mbp-ba-item__arrow {
+  font-size: 20px;
+  color: var(--p24-primary);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   MBP _new: Personas (3 персоны)
+   -------------------------------------------------------------------------- */
+
+.p24-mbp-personas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-mbp-persona__role {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--p24-primary);
+  margin-bottom: 8px;
+}
+
+.p24-mbp-persona .p24-h4 {
+  margin-bottom: 16px;
+}
+
+.p24-mbp-persona__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.p24-mbp-persona__list li {
+  font-size: 15px;
+  color: var(--p24-text-secondary);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.p24-mbp-persona__list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--p24-accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   MBP _new: Client logos
+   -------------------------------------------------------------------------- */
+
+.p24-mbp-clients {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.p24-mbp-client {
+  padding: 12px 24px;
+  background: var(--p24-bg-secondary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+  transition: all var(--p24-transition);
+}
+
+.p24-mbp-client:hover {
+  border-color: var(--p24-primary);
+  background: var(--p24-primary-light);
+}
+
+.p24-mbp-client__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Auto _new: Stats bar (метрики доверия)
+   -------------------------------------------------------------------------- */
+
+.p24-auto-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+
+.p24-auto-stat__value {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--p24-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.p24-auto-stat__label {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   Auto _new: Bundle "под ключ"
+   -------------------------------------------------------------------------- */
+
+.p24-auto-bundle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.p24-auto-bundle__num {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--p24-primary-light);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.p24-auto-bundle__item .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-auto-bundle__item p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Auto _new: Features list (9 возможностей)
+   -------------------------------------------------------------------------- */
+
+.p24-auto-features-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.p24-auto-feature-item {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+  align-items: flex-start;
+}
+
+.p24-auto-feature-item__check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--p24-accent);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+.p24-auto-feature-item strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+  margin-bottom: 4px;
+}
+
+.p24-auto-feature-item p {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Auto _new: Pricing table (ПАК Лайт / Базовый)
+   -------------------------------------------------------------------------- */
+
+.p24-auto-pricing {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.p24-auto-pricing__card .p24-h3 {
+  margin-bottom: 20px;
+}
+
+.p24-auto-pricing__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.p24-auto-pricing__list li {
+  font-size: 15px;
+  color: var(--p24-text-secondary);
+  padding-left: 22px;
+  position: relative;
+  line-height: 1.5;
+}
+
+.p24-auto-pricing__list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--p24-accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.p24-auto-pricing__price {
+  margin-bottom: 20px;
+  padding: 16px 0;
+  border-top: 1px solid var(--p24-border);
+  border-bottom: 1px solid var(--p24-border);
+}
+
+.p24-auto-pricing__price-main {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--p24-text-primary);
+  line-height: 1.2;
+}
+
+.p24-auto-pricing__price-sub {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+  margin-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Hub page (page-products.php)
+   -------------------------------------------------------------------------- */
+
+.p24-products-hub-hero {
+  padding: 80px 0 0;
+}
+
+.p24-products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-product-hub-card {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.p24-product-hub-card:hover {
+  border-color: var(--p24-primary);
+}
+
+.p24-product-hub-card .p24-badge {
+  align-self: flex-start;
+  margin-bottom: 12px;
+}
+
+.p24-product-hub-card .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-product-hub-card p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.p24-product-hub-card__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-primary);
+  margin-top: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .p24-product-hero {
+    padding-top: 48px;
+  }
+
+  .p24-product-hero__layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .p24-product-steps {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .p24-product-integrations {
+    gap: 16px;
+  }
+
+  .p24-product-integration {
+    padding: 12px 16px;
+  }
+
+  .p24-product-case {
+    padding: 32px 20px;
+  }
+
+  .p24-products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* MBP _new */
+  .p24-mbp-benefits,
+  .p24-mbp-before-after,
+  .p24-mbp-personas {
+    grid-template-columns: 1fr;
+  }
+
+  .p24-mbp-ba-item__value {
+    font-size: 20px;
+  }
+
+  /* Auto _new */
+  .p24-auto-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .p24-auto-stat__value {
+    font-size: 30px;
+  }
+
+  .p24-auto-bundle,
+  .p24-auto-features-list,
+  .p24-auto-pricing {
+    grid-template-columns: 1fr;
+  }
+
+  .p24-auto-pricing__price-main {
+    font-size: 26px;
+  }
+}

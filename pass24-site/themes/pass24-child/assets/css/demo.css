@@ -1,0 +1,479 @@
+/* ==========================================================================
+   Demo / Pilot Landing Page
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.p24-demo-hero {
+  padding: 80px 0 0;
+  text-align: center;
+}
+
+.p24-demo-hero__badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.p24-demo-hero__title {
+  max-width: 700px;
+  margin: 0 auto 16px;
+}
+
+.p24-demo-hero__subtitle {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   Layout (2 колонки)
+   -------------------------------------------------------------------------- */
+
+.p24-demo-main {
+  padding-top: 48px;
+}
+
+.p24-demo-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+/* --------------------------------------------------------------------------
+   Form container
+   -------------------------------------------------------------------------- */
+
+.p24-demo-form-col {
+  position: relative;
+}
+
+.p24-demo-form {
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+  padding: 32px;
+  box-shadow: var(--p24-shadow-lg);
+}
+
+/* --------------------------------------------------------------------------
+   Progress bar
+   -------------------------------------------------------------------------- */
+
+.p24-demo-progress {
+  margin-bottom: 32px;
+}
+
+.p24-demo-progress__bar {
+  height: 4px;
+  background: var(--p24-border-light);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.p24-demo-progress__fill {
+  height: 100%;
+  background: var(--p24-primary);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.p24-demo-progress__steps {
+  display: flex;
+  justify-content: space-between;
+}
+
+.p24-demo-progress__step {
+  font-size: 13px;
+  color: var(--p24-text-secondary);
+  transition: color var(--p24-transition);
+}
+
+.p24-demo-progress__step.is-active {
+  color: var(--p24-primary);
+  font-weight: 600;
+}
+
+.p24-demo-progress__step.is-done {
+  color: var(--p24-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Form steps
+   -------------------------------------------------------------------------- */
+
+.p24-demo-step {
+  display: none;
+}
+
+.p24-demo-step.is-active {
+  display: block;
+  animation: p24-fadeIn 0.3s ease;
+}
+
+@keyframes p24-fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.p24-demo-step__title {
+  margin-bottom: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   Form fields
+   -------------------------------------------------------------------------- */
+
+.p24-demo-field {
+  margin-bottom: 20px;
+}
+
+.p24-demo-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+  margin-bottom: 6px;
+}
+
+.p24-demo-required {
+  color: var(--p24-error);
+}
+
+.p24-demo-optional {
+  font-weight: 400;
+  color: var(--p24-text-secondary);
+}
+
+.p24-demo-field input[type="text"],
+.p24-demo-field input[type="email"],
+.p24-demo-field input[type="tel"],
+.p24-demo-field select,
+.p24-demo-field textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--p24-font-family);
+  font-size: 16px;
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+  background: var(--p24-bg-primary);
+  color: var(--p24-text-primary);
+  transition: border-color var(--p24-transition), box-shadow var(--p24-transition);
+  box-sizing: border-box;
+}
+
+.p24-demo-field input:focus,
+.p24-demo-field select:focus,
+.p24-demo-field textarea:focus {
+  border-color: var(--p24-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--p24-primary-light);
+}
+
+.p24-demo-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Validation error state */
+.p24-demo-field.has-error input,
+.p24-demo-field.has-error select {
+  border-color: var(--p24-error);
+}
+
+.p24-demo-field.has-error input:focus,
+.p24-demo-field.has-error select:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.p24-demo-field__error {
+  display: none;
+  font-size: 13px;
+  color: var(--p24-error);
+  margin-top: 4px;
+}
+
+.p24-demo-field.has-error .p24-demo-field__error {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Radio group (pill-style)
+   -------------------------------------------------------------------------- */
+
+.p24-demo-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.p24-demo-radio {
+  cursor: pointer;
+}
+
+.p24-demo-radio input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.p24-demo-radio span {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+  color: var(--p24-text-secondary);
+  transition: all var(--p24-transition);
+  user-select: none;
+}
+
+.p24-demo-radio span:hover {
+  border-color: var(--p24-primary);
+  color: var(--p24-primary);
+}
+
+.p24-demo-radio input:checked + span {
+  background: var(--p24-primary-light);
+  border-color: var(--p24-primary);
+  color: var(--p24-primary);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Navigation buttons
+   -------------------------------------------------------------------------- */
+
+.p24-demo-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.p24-demo-buttons .p24-btn {
+  flex: 1;
+  justify-content: center;
+}
+
+.p24-demo-submit {
+  position: relative;
+}
+
+.p24-demo-submit.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   Benefits sidebar
+   -------------------------------------------------------------------------- */
+
+.p24-demo-benefits-col {
+  position: sticky;
+  top: 100px;
+}
+
+.p24-demo-benefits {
+  margin-bottom: 28px;
+}
+
+.p24-demo-benefits__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.p24-demo-benefits__list li {
+  position: relative;
+  padding: 8px 0 8px 28px;
+  font-size: 15px;
+  color: var(--p24-text-primary);
+  line-height: 1.5;
+}
+
+.p24-demo-benefits__list li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--p24-accent);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Trust badges */
+.p24-demo-trust {
+  margin-bottom: 28px;
+}
+
+.p24-demo-trust__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Quote */
+.p24-demo-quote {
+  padding: 20px;
+  background: var(--p24-bg-secondary);
+  border-radius: var(--p24-radius-lg);
+  margin-bottom: 28px;
+}
+
+.p24-demo-quote blockquote {
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--p24-text-primary);
+  margin: 0 0 12px;
+  padding: 0;
+  border: none;
+}
+
+.p24-demo-quote__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-text-primary);
+}
+
+.p24-demo-quote__role {
+  font-size: 13px;
+  color: var(--p24-text-secondary);
+}
+
+/* Contact fallback */
+.p24-demo-contact {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--p24-border);
+}
+
+.p24-demo-contact p {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+  margin-bottom: 4px;
+}
+
+.p24-demo-contact__phone {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--p24-text-primary);
+  text-decoration: none;
+}
+
+.p24-demo-contact__phone:hover {
+  color: var(--p24-primary);
+}
+
+.p24-demo-contact__messengers {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.p24-demo-contact__messengers a {
+  font-size: 14px;
+  color: var(--p24-primary);
+  text-decoration: none;
+}
+
+.p24-demo-contact__messengers a:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Thank you state
+   -------------------------------------------------------------------------- */
+
+.p24-demo-thankyou__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.p24-demo-thankyou__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.p24-demo-thankyou__num {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--p24-primary-light);
+  color: var(--p24-primary);
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 50%;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .p24-demo-layout {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .p24-demo-hero {
+    padding-top: 48px;
+  }
+
+  .p24-demo-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .p24-demo-benefits-col {
+    position: static;
+    order: -1;
+  }
+
+  .p24-demo-form {
+    padding: 24px;
+  }
+
+  .p24-demo-progress__steps {
+    gap: 4px;
+  }
+
+  .p24-demo-progress__step {
+    font-size: 12px;
+  }
+
+  .p24-demo-radio-group {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .p24-demo-form {
+    padding: 20px 16px;
+    border-radius: var(--p24-radius-lg);
+  }
+
+  .p24-demo-buttons {
+    flex-direction: column;
+  }
+
+  .p24-demo-hero__title {
+    font-size: 28px;
+  }
+}

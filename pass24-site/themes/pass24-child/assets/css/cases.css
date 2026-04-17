@@ -1,0 +1,138 @@
+/**
+ * PASS24 Cases — стили кейсов
+ *
+ * Минимальные стили. Основа — design-system.css классы.
+ *
+ * @package PASS24_Child
+ */
+
+/* Hero */
+.p24-case-hero {
+	padding: 64px 0 48px;
+	background: var(--p24-bg-secondary);
+}
+
+/* Metrics (dark section) */
+.p24-case-metrics {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 32px;
+	text-align: center;
+}
+.p24-case-metrics__value {
+	font-size: 48px;
+	font-weight: 800;
+	color: var(--p24-accent);
+	line-height: 1.1;
+	margin-bottom: 8px;
+}
+.p24-case-metrics__label {
+	font-size: 15px;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+/* Testimonial */
+.p24-case-testimonial {
+	text-align: center;
+	border: none;
+	margin: 0;
+	padding: 0;
+}
+.p24-case-testimonial__text {
+	font-size: 20px;
+	line-height: 1.6;
+	color: var(--p24-text-primary);
+	font-style: italic;
+	margin-bottom: 24px;
+}
+.p24-case-testimonial__author {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-style: normal;
+}
+.p24-case-testimonial__author strong {
+	font-size: 16px;
+	color: var(--p24-text-primary);
+}
+.p24-case-testimonial__author span {
+	font-size: 14px;
+	color: var(--p24-text-secondary);
+}
+
+/* Product card */
+.p24-case-product-card {
+	display: block;
+	padding: 24px;
+	text-decoration: none;
+	color: inherit;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+.p24-case-product-card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--p24-shadow-md);
+}
+.p24-case-product-card__link {
+	display: inline-block;
+	margin-top: 12px;
+	color: var(--p24-primary);
+	font-weight: 600;
+	font-size: 14px;
+}
+
+/* Hub — grid */
+.p24-cases-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 24px;
+}
+.p24-case-hub-card {
+	display: block;
+	padding: 32px;
+	text-decoration: none;
+	color: inherit;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+.p24-case-hub-card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--p24-shadow-md);
+}
+.p24-case-hub-card__segment {
+	font-size: 13px;
+	color: var(--p24-text-secondary);
+	margin-bottom: 8px;
+}
+.p24-case-hub-card__metric {
+	display: inline-block;
+	margin-top: 16px;
+	padding: 6px 12px;
+	background: var(--p24-bg-secondary);
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--p24-primary);
+}
+.p24-case-hub-card__link {
+	display: inline-block;
+	margin-top: 12px;
+	color: var(--p24-primary);
+	font-weight: 600;
+	font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.p24-case-metrics {
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+	.p24-case-metrics__value {
+		font-size: 36px;
+	}
+	.p24-cases-grid {
+		grid-template-columns: 1fr;
+	}
+	.p24-case-testimonial__text {
+		font-size: 17px;
+	}
+}

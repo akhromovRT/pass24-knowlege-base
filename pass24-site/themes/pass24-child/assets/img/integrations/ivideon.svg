@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 164 48" fill="currentColor">
+  <!-- Ivideon — lowercase modern tech with camera lens accent -->
+  <!-- Camera lens icon above the 'i' dot position -->
+  <circle cx="9" cy="9" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="9" cy="9" r="2.8" fill="currentColor"/>
+  <!-- Small highlight dot -->
+  <circle cx="12" cy="6.5" r="1.2" fill="currentColor" opacity="0.4"/>
+  <!-- Wordmark -->
+  <text x="0" y="40" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="30" letter-spacing="1" fill="currentColor">ivideon</text>
+</svg>

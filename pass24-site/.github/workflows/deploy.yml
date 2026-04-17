@@ -1,0 +1,32 @@
+name: Deploy Site to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+      - name: PHP syntax check
+        run: find themes/ mu-plugins/ -name '*.php' -exec php -l {} +
+
+  deploy:
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.WP_SERVER_HOST }}
+          username: ${{ secrets.WP_SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/pass24-site
+            git pull origin main
+            bash scripts/deploy.sh

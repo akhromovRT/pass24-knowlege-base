@@ -1,0 +1,146 @@
+/* ==========================================================================
+   Integrations / Страница интеграций
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.p24-integrations-hero {
+  padding: 80px 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   Integration cards grid
+   -------------------------------------------------------------------------- */
+
+.p24-integrations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-integration-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.p24-integration-card__logo {
+  height: 48px;
+  width: auto;
+  margin-bottom: 16px;
+  filter: grayscale(0.2);
+  transition: filter var(--p24-transition);
+}
+
+.p24-integration-card:hover .p24-integration-card__logo {
+  filter: grayscale(0);
+}
+
+.p24-integration-card__type {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--p24-primary);
+  margin-bottom: 8px;
+}
+
+.p24-integration-card .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-integration-card p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  flex: 1;
+}
+
+.p24-integration-card__features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.p24-integration-card__feature-tag {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: var(--p24-bg-secondary);
+  border-radius: var(--p24-radius-sm);
+  color: var(--p24-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Open API section
+   -------------------------------------------------------------------------- */
+
+.p24-integrations-api {
+  text-align: center;
+}
+
+.p24-integrations-api__box {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+  padding: 48px 32px;
+}
+
+.p24-integrations-api__box .p24-h3 {
+  margin-bottom: 12px;
+}
+
+.p24-integrations-api__box p {
+  color: var(--p24-text-secondary);
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.p24-integrations-api__box code {
+  display: block;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  background: var(--p24-bg-secondary);
+  padding: 12px 16px;
+  border-radius: var(--p24-radius-md);
+  color: var(--p24-text-primary);
+  margin-bottom: 24px;
+  text-align: left;
+  overflow-x: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Partner CTA
+   -------------------------------------------------------------------------- */
+
+.p24-integrations-partner {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .p24-integrations-hero {
+    padding-top: 48px;
+  }
+
+  .p24-integrations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .p24-integrations-api__box {
+    padding: 32px 20px;
+  }
+}

@@ -1,0 +1,199 @@
+/* ==========================================================================
+   About / О компании
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.p24-about-hero {
+  padding: 80px 0 48px;
+}
+
+/* --------------------------------------------------------------------------
+   Stats (big numbers)
+   -------------------------------------------------------------------------- */
+
+.p24-about-stats {
+  display: flex;
+  justify-content: center;
+  gap: 64px;
+  flex-wrap: wrap;
+}
+
+.p24-about-stat {
+  text-align: center;
+}
+
+.p24-about-stat__value {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--p24-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.p24-about-stat__label {
+  font-size: 15px;
+  color: var(--p24-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Features (platform overview)
+   -------------------------------------------------------------------------- */
+
+.p24-about-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.p24-about-feature {
+  text-align: center;
+  padding: 24px;
+}
+
+.p24-about-feature__icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.p24-about-feature h3 {
+  margin-bottom: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Awards
+   -------------------------------------------------------------------------- */
+
+.p24-about-awards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-about-award {
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+  padding: 32px;
+  text-align: center;
+  transition: all var(--p24-transition-slow);
+}
+
+.p24-about-award:hover {
+  box-shadow: var(--p24-shadow-md);
+  transform: translateY(-2px);
+}
+
+.p24-about-award__badge {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.p24-about-award__year {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--p24-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.p24-about-award__title {
+  margin-bottom: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Trust cards
+   -------------------------------------------------------------------------- */
+
+.p24-about-trust {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.p24-about-trust-card {
+  background: var(--p24-bg-secondary);
+  border-radius: var(--p24-radius-lg);
+  padding: 32px;
+  text-align: center;
+}
+
+.p24-about-trust-card__icon {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.p24-about-trust-card__icon img {
+  display: inline-block;
+}
+
+.p24-about-trust-card h3 {
+  margin-bottom: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Map placeholder
+   -------------------------------------------------------------------------- */
+
+.p24-about-map-placeholder {
+  background: var(--p24-bg-secondary);
+  border: 2px dashed var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+  overflow: hidden;
+}
+
+.p24-about-map-placeholder__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .p24-about-hero {
+    padding: 48px 0 32px;
+  }
+
+  .p24-about-stats {
+    gap: 32px;
+  }
+
+  .p24-about-stat__value {
+    font-size: 36px;
+  }
+
+  .p24-about-features {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .p24-about-awards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .p24-about-award {
+    padding: 24px;
+  }
+
+  .p24-about-trust {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .p24-about-map-placeholder__inner {
+    padding: 48px 16px;
+  }
+}

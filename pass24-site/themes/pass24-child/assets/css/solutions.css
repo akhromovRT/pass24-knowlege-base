@@ -1,0 +1,426 @@
+/* ==========================================================================
+   Solutions / Страницы решений (вертикали)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Hero
+   -------------------------------------------------------------------------- */
+
+.p24-solution-hero {
+  padding: 80px 0 0;
+}
+
+.p24-solution-hero__layout {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.p24-solution-hero__content .p24-badge {
+  margin-bottom: 16px;
+}
+
+.p24-solution-hero__content .p24-h1 {
+  margin-bottom: 16px;
+}
+
+.p24-solution-hero__content .p24-subtitle {
+  margin-bottom: 24px;
+}
+
+.p24-solution-hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Clients sidebar */
+.p24-solution-hero__clients {
+  background: var(--p24-bg-secondary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+  padding: 24px;
+}
+
+.p24-solution-clients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.p24-solution-clients-list li {
+  padding: 6px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--p24-text-primary);
+  border-bottom: 1px solid var(--p24-border);
+}
+
+.p24-solution-clients-list li:last-child {
+  border-bottom: none;
+}
+
+.p24-solution-hero__logos {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.p24-solution-hero__logos img {
+  height: 28px;
+  width: auto;
+  opacity: 0.6;
+  transition: opacity var(--p24-transition);
+}
+
+.p24-solution-hero__logos img:hover {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Pain cards (Знакомые проблемы)
+   -------------------------------------------------------------------------- */
+
+.p24-solution-pain {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.p24-solution-pain__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--p24-radius-md);
+  background: var(--p24-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.p24-solution-pain .p24-h4 {
+  margin: 0;
+}
+
+.p24-solution-pain p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Solution map (Боль → Решение)
+   -------------------------------------------------------------------------- */
+
+.p24-solution-map {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.p24-solution-map__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--p24-bg-secondary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+}
+
+.p24-solution-map__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.p24-solution-map__pain .p24-solution-map__label {
+  color: var(--p24-text-secondary);
+}
+
+.p24-solution-map__fix .p24-solution-map__label {
+  color: var(--p24-primary);
+}
+
+.p24-solution-map__pain,
+.p24-solution-map__fix {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.p24-solution-map__arrow {
+  font-size: 20px;
+  color: var(--p24-primary);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Product cards (Продукты для вашего объекта)
+   -------------------------------------------------------------------------- */
+
+.p24-solution-product-card {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.p24-solution-product-card:hover {
+  border-color: var(--p24-primary);
+}
+
+.p24-solution-product-card .p24-badge {
+  align-self: flex-start;
+}
+
+.p24-solution-product-card .p24-small {
+  flex: 1;
+  margin-top: 4px;
+}
+
+.p24-solution-product-card__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-primary);
+  margin-top: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Case study
+   -------------------------------------------------------------------------- */
+
+.p24-solution-case {
+  text-align: center;
+  padding: 48px 32px;
+  background: var(--p24-bg-secondary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+}
+
+.p24-solution-case__quote {
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--p24-text-primary);
+  font-style: italic;
+  margin: 24px 0;
+  padding: 0;
+  border: none;
+}
+
+/* --------------------------------------------------------------------------
+   ROI metrics
+   -------------------------------------------------------------------------- */
+
+.p24-solution-roi {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+
+.p24-solution-roi__value {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.p24-solution-roi__label {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* --------------------------------------------------------------------------
+   Testimonial
+   -------------------------------------------------------------------------- */
+
+.p24-solution-testimonial {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.p24-solution-testimonial__text {
+  font-size: 22px;
+  line-height: 1.7;
+  color: var(--p24-text-primary);
+  font-style: italic;
+  margin-bottom: 24px;
+}
+
+.p24-solution-testimonial__author {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-style: normal;
+}
+
+.p24-solution-testimonial__author strong {
+  font-size: 16px;
+  color: var(--p24-text-primary);
+}
+
+.p24-solution-testimonial__author span {
+  font-size: 14px;
+  color: var(--p24-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   CTA form (reuses contacts.css field styles)
+   -------------------------------------------------------------------------- */
+
+.p24-solution-form {
+  background: var(--p24-bg-primary);
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-xl);
+  padding: 32px;
+  box-shadow: var(--p24-shadow-lg);
+}
+
+.p24-solution-form .p24-contacts-field input,
+.p24-solution-form .p24-contacts-field select,
+.p24-solution-form .p24-contacts-field textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--p24-font-family);
+  font-size: 16px;
+  border: 1px solid var(--p24-border);
+  border-radius: var(--p24-radius-md);
+  background: var(--p24-bg-primary);
+  color: var(--p24-text-primary);
+  transition: border-color var(--p24-transition), box-shadow var(--p24-transition);
+  box-sizing: border-box;
+}
+
+.p24-solution-form .p24-contacts-field input:focus,
+.p24-solution-form .p24-contacts-field select:focus,
+.p24-solution-form .p24-contacts-field textarea:focus {
+  border-color: var(--p24-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--p24-primary-light);
+}
+
+/* --------------------------------------------------------------------------
+   Hub page (page-solutions.php)
+   -------------------------------------------------------------------------- */
+
+.p24-solutions-hub-hero {
+  padding: 80px 0 0;
+}
+
+.p24-solutions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.p24-solution-hub-card {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.p24-solution-hub-card:hover {
+  border-color: var(--p24-primary);
+}
+
+.p24-solution-hub-card__priority {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--p24-primary);
+  margin-bottom: 8px;
+}
+
+.p24-solution-hub-card .p24-h4 {
+  margin-bottom: 8px;
+}
+
+.p24-solution-hub-card p {
+  color: var(--p24-text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.p24-solution-hub-card__clients {
+  font-size: 13px;
+  color: var(--p24-text-secondary);
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--p24-border);
+}
+
+.p24-solution-hub-card__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p24-primary);
+  margin-top: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .p24-solution-hero {
+    padding-top: 48px;
+  }
+
+  .p24-solution-hero__layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .p24-solution-map__row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .p24-solution-map__arrow {
+    transform: rotate(90deg);
+  }
+
+  .p24-solution-roi {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .p24-solution-roi__value {
+    font-size: 36px;
+  }
+
+  .p24-solution-testimonial__text {
+    font-size: 18px;
+  }
+
+  .p24-solution-case {
+    padding: 32px 20px;
+  }
+
+  .p24-solution-form {
+    padding: 24px;
+  }
+
+  .p24-solutions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .p24-solution-form {
+    padding: 20px 16px;
+  }
+}
