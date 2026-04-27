@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>PASS24 — Тарифы 2026 · Шпаргалка</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #0F2A66;
+    --brand-2: #1E4FD9;
+    --brand-soft: #EAF0FF;
+    --accent: #FF7A00;
+    --accent-soft: #FFF1E0;
+    --ink: #0B1226;
+    --ink-2: #45506B;
+    --line: #D9DFEC;
+    --green: #16A34A;
+    --green-soft: #DCFCE7;
+    --bg: #F7F8FB;
+  }
+
+  html, body {
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    font-size: 9.5pt;
+    line-height: 1.35;
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 100%;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ===== Шапка ===== */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid var(--brand);
+    padding-bottom: 6mm;
+    margin-bottom: 6mm;
+  }
+  .header .brand {
+    font-weight: 800;
+    font-size: 26pt;
+    color: var(--brand);
+    letter-spacing: -0.5px;
+  }
+  .header .brand .dot { color: var(--accent); }
+  .header .meta {
+    text-align: right;
+    color: var(--ink-2);
+    font-size: 8pt;
+    line-height: 1.5;
+  }
+  .header .meta .title {
+    color: var(--brand);
+    font-weight: 700;
+    font-size: 10pt;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-size: 13pt;
+    color: var(--brand);
+    margin: 5mm 0 3mm;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+  }
+  h2 .subtle { color: var(--ink-2); font-weight: 400; font-size: 9pt; }
+
+  /* ===== UVP-баннер ===== */
+  .uvp {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color: white;
+    padding: 5mm 6mm;
+    border-radius: 4mm;
+    margin-bottom: 5mm;
+    display: flex;
+    align-items: center;
+    gap: 5mm;
+  }
+  .uvp .ic {
+    flex: 0 0 14mm;
+    height: 14mm;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18pt;
+  }
+  .uvp .text {
+    flex: 1;
+  }
+  .uvp .label {
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+    margin-bottom: 1mm;
+  }
+  .uvp .quote {
+    font-size: 13pt;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  /* ===== Сетка тарифов ===== */
+  .tariffs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3mm;
+    margin-bottom: 5mm;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 3mm;
+    background: white;
+    padding: 4mm;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .card.recommended {
+    border: 2px solid var(--accent);
+    box-shadow: 0 4px 16px rgba(255,122,0,0.15);
+  }
+  .card.recommended::before {
+    content: "★ Рекомендованный";
+    position: absolute;
+    top: -3mm;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 1mm 3mm;
+    border-radius: 2mm;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .card .name {
+    font-weight: 800;
+    font-size: 13pt;
+    color: var(--brand);
+    margin-bottom: 1mm;
+  }
+  .card .who {
+    color: var(--ink-2);
+    font-size: 8pt;
+    margin-bottom: 3mm;
+    min-height: 9mm;
+  }
+  .card .price {
+    border-top: 1px dashed var(--line);
+    border-bottom: 1px dashed var(--line);
+    padding: 2.5mm 0;
+    margin-bottom: 3mm;
+  }
+  .card .price .num {
+    font-size: 18pt;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+  .card .price .num .from {
+    font-size: 9pt;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+  .card .price .unit {
+    color: var(--ink-2);
+    font-size: 8pt;
+  }
+  .card .price .year {
+    color: var(--green);
+    font-size: 7.5pt;
+    font-weight: 600;
+    margin-top: 1mm;
+  }
+  .card .feats {
+    list-style: none;
+    flex: 1;
+  }
+  .card .feats li {
+    padding: 1mm 0 1mm 4mm;
+    font-size: 7.5pt;
+    color: var(--ink-2);
+    position: relative;
+    line-height: 1.3;
+  }
+  .card .feats li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 800;
+  }
+  .card .feats li.upsell {
+    margin-top: 2mm;
+    padding-top: 2mm;
+    border-top: 1px dotted var(--line);
+    color: var(--ink-2);
+    font-style: italic;
+    font-size: 7pt;
+  }
+  .card .feats li.upsell::before { content: "→"; color: var(--accent); }
+
+  /* ===== Сравнительная таблица ===== */
+  .compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+    margin-bottom: 4mm;
+  }
+  .compare th, .compare td {
+    border: 1px solid var(--line);
+    padding: 1.5mm 2mm;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .compare th {
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-weight: 700;
+    font-size: 8pt;
+  }
+  .compare th.row-header, .compare td.row-header {
+    text-align: left;
+    background: white;
+    color: var(--ink);
+    font-weight: 600;
+    width: 28%;
+  }
+  .compare tr:nth-child(even) td.row-header { background: var(--bg); }
+  .compare tr:nth-child(even) td:not(.row-header) { background: var(--bg); }
+  .compare .yes { color: var(--green); font-weight: 800; font-size: 11pt; }
+  .compare .no { color: var(--line); font-size: 11pt; }
+  .compare .mark { color: var(--accent); font-weight: 700; }
+  .compare .group-title td {
+    background: var(--brand);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+    letter-spacing: 0.7px;
+    text-align: left;
+    padding: 1.5mm 2mm;
+  }
+
+  /* ===== Промо-блок ===== */
+  .promo {
+    background: var(--accent-soft);
+    border: 2px dashed var(--accent);
+    border-radius: 3mm;
+    padding: 4mm 5mm;
+    margin-bottom: 4mm;
+    display: flex;
+    gap: 4mm;
+    align-items: center;
+  }
+  .promo .badge {
+    background: var(--accent);
+    color: white;
+    font-weight: 800;
+    font-size: 18pt;
+    padding: 3mm 4mm;
+    border-radius: 2mm;
+    flex-shrink: 0;
+  }
+  .promo .text strong {
+    color: var(--accent);
+    font-size: 11pt;
+    display: block;
+    margin-bottom: 1mm;
+  }
+  .promo .text {
+    font-size: 9pt;
+    color: var(--ink);
+  }
+
+  /* ===== Модули и сопутствующие ===== */
+  .blocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+    margin-bottom: 5mm;
+  }
+  .block {
+    border: 1px solid var(--line);
+    border-radius: 3mm;
+    padding: 4mm;
+  }
+  .block .h {
+    color: var(--brand);
+    font-weight: 800;
+    font-size: 10pt;
+    margin-bottom: 2mm;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1.5mm;
+  }
+  .block ul { list-style: none; }
+  .block li {
+    padding: 1.5mm 0 1.5mm 5mm;
+    font-size: 8pt;
+    position: relative;
+    color: var(--ink);
+  }
+  .block li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--brand-2);
+    font-weight: 800;
+  }
+  .block li b { color: var(--brand); }
+  .block li .price-tag {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ===== Скрипты для продавцов ===== */
+  .scripts {
+    background: var(--brand-soft);
+    border-left: 4px solid var(--brand);
+    padding: 4mm 5mm;
+    border-radius: 0 2mm 2mm 0;
+    margin-bottom: 4mm;
+  }
+  .scripts .h {
+    color: var(--brand);
+    font-weight: 800;
+    font-size: 10pt;
+    margin-bottom: 2mm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 8.5pt;
+  }
+  .scripts .item {
+    margin-bottom: 2.5mm;
+    font-size: 8.5pt;
+  }
+  .scripts .item:last-child { margin-bottom: 0; }
+  .scripts .q {
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  .scripts .a {
+    color: var(--ink);
+    margin-top: 0.5mm;
+  }
+  .scripts .a strong { color: var(--brand); }
+
+  /* ===== Footer ===== */
+  .footer {
+    border-top: 2px solid var(--brand);
+    padding-top: 3mm;
+    display: flex;
+    justify-content: space-between;
+    color: var(--ink-2);
+    font-size: 7.5pt;
+  }
+  .footer .left { font-weight: 600; color: var(--brand); }
+</style>
+</head>
+<body>
+
+<!-- ====================== СТРАНИЦА 1 ====================== -->
+<div class="page">
+
+  <div class="header">
+    <div class="brand">PASS24<span class="dot">.</span>online</div>
+    <div class="meta">
+      <div class="title">Тарифы · Шпаргалка</div>
+      <div>Для отдела продаж и маркетинга</div>
+      <div>Версия 1.1 · апрель 2026</div>
+    </div>
+  </div>
+
+  <div class="uvp">
+    <div class="ic">∞</div>
+    <div class="text">
+      <div class="label">Главный посыл</div>
+      <div class="quote">«Сколько бы жителей, арендаторов и гостей ни было — цена тарифа не меняется»</div>
+    </div>
+  </div>
+
+  <h2>4 тарифа PASS24 <span class="subtle">— подбираются под размер и сложность объекта</span></h2>
+
+  <div class="tariffs">
+
+    <div class="card">
+      <div class="name">Базовый</div>
+      <div class="who">1 объект с контролем въезда через распознавание номеров</div>
+      <div class="price">
+        <div class="num">10 990 ₽<span class="unit"> /мес</span></div>
+        <div class="year">9 891 ₽/мес при оплате за год</div>
+      </div>
+      <ul class="feats">
+        <li>До 2 КПП · 2 админа · 3 охранника</li>
+        <li>100 гостевых QR / день</li>
+        <li>Электронный журнал охраны</li>
+        <li>Push и Email уведомления</li>
+        <li>Архив событий 3 мес</li>
+        <li>Интеграция с LPR</li>
+        <li class="upsell">→ ПАК Лайт за 1 ₽ при 6-мес оплате</li>
+      </ul>
+    </div>
+
+    <div class="card recommended">
+      <div class="name">Стандартный</div>
+      <div class="who">ЖК и коттеджные посёлки с полноценной пропускной системой</div>
+      <div class="price">
+        <div class="num">14 990 ₽<span class="unit"> /мес</span></div>
+        <div class="year">13 491 ₽/мес при оплате за год</div>
+      </div>
+      <ul class="feats">
+        <li>До 5 КПП · 5 админов · 10 охранников</li>
+        <li>200 гостевых QR / день</li>
+        <li>Группы адресов, шаблоны пропусков</li>
+        <li>Telegram и Макс боты</li>
+        <li>Интеграция со СКУД</li>
+        <li>Read-only API · 500 SMS/мес</li>
+        <li class="upsell">→ Чёткий апгрейд по росту объекта</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="name">Профессиональный</div>
+      <div class="who">Объекты с промышленным учётом жителей и платным въездом</div>
+      <div class="price">
+        <div class="num">24 990 ₽<span class="unit"> /мес</span></div>
+        <div class="year">22 491 ₽/мес при оплате за год</div>
+      </div>
+      <ul class="feats">
+        <li>До 10 КПП · 15 админов · 25 охранников</li>
+        <li>600 гостевых QR / день</li>
+        <li>Импорт жителей (Excel/1С), категории</li>
+        <li>Платный въезд / выезд</li>
+        <li>Read/Write API + Webhooks</li>
+        <li>Выделенный номер техподдержки</li>
+        <li class="upsell">→ Кастомные роли (RBAC), 2 000 SMS/мес</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="name">Мультиобъектный</div>
+      <div class="who">УК с портфелем объектов: ЖК, БЦ, склады</div>
+      <div class="price">
+        <div class="num"><span class="from">от </span>48 990 ₽<span class="unit"> /мес</span></div>
+        <div class="year">от 44 091 ₽/мес при оплате за год</div>
+      </div>
+      <ul class="feats">
+        <li>От 2 объектов · без ограничений</li>
+        <li>Единый кабинет всего портфеля</li>
+        <li>Делегирование администрирования</li>
+        <li>Кроссобъектные маршруты пропусков</li>
+        <li>Полный API + Webhooks</li>
+        <li>Закреплённый менеджер (CSM)</li>
+        <li class="upsell">→ Бессрочный архив, 10 000 SMS/мес</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="promo">
+    <div class="badge">1 ₽</div>
+    <div class="text">
+      <strong>Акция: ПАК Лайт почти даром</strong>
+      При оплате тарифа «Базовый» на 6 месяцев вперёд клиент получает программно-аппаратный комплекс PASS24.авто (ПАК Лайт): 2 камеры распознавания номеров, сервер LPR, настройку и пуско-наладку — всего за 1 ₽. Сильный hook для разговора с УК и председателями.
+    </div>
+  </div>
+
+  <div class="scripts">
+    <div class="h">Скрипты для типовых возражений</div>
+    <div class="item">
+      <div class="q">«А почему мне ваш тариф, а не у кого-то другого по 4 000 ₽?»</div>
+      <div class="a"><strong>Ответ:</strong> Считаем на пользователе. У них — оплата за каждого жителя или гостя. У нас — фиксированная цена за объект, сколько бы людей ни было. На объекте 200+ жителей наша цена окупается в первый месяц.</div>
+    </div>
+    <div class="item">
+      <div class="q">«Что если нам не хватит лимитов из тарифа?»</div>
+      <div class="a"><strong>Ответ:</strong> Переход на следующий тариф — это не штраф, а пакет новых возможностей: на «Профессиональном» появляются импорт жителей, платный въезд, API. Доплат за слоты нет — есть прозрачная фиксированная цена.</div>
+    </div>
+    <div class="item">
+      <div class="q">«У нас уже есть СКУД (Sigur, Bolid и т.д.) — мы должны всё переделывать?»</div>
+      <div class="a"><strong>Ответ:</strong> Нет. PASS24 работает как надстройка над существующей СКУД. На «Стандартном» и выше — прямая интеграция, на «Профессиональном» добавляется LPR и платный въезд. Менять железо не нужно.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="left">PASS24.online · Тарифы 2026 · Шпаргалка для отдела продаж</div>
+    <div>Стр. 1 из 2</div>
+  </div>
+
+</div>
+
+
+<!-- ====================== СТРАНИЦА 2 ====================== -->
+<div class="page">
+
+  <div class="header">
+    <div class="brand">PASS24<span class="dot">.</span>online</div>
+    <div class="meta">
+      <div class="title">Сравнение и модули</div>
+      <div>Что входит, что докупается</div>
+      <div>Версия 1.1 · апрель 2026</div>
+    </div>
+  </div>
+
+  <h2>Сравнение тарифов <span class="subtle">— ключевые различия одной таблицей</span></h2>
+
+  <table class="compare">
+    <thead>
+      <tr>
+        <th class="row-header">Параметр</th>
+        <th>Базовый</th>
+        <th>Стандартный ★</th>
+        <th>Профессиональный</th>
+        <th>Мультиобъектный</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="group-title"><td colspan="5">Лимиты</td></tr>
+      <tr><td class="row-header">Объектов в подписке</td><td>1</td><td>1</td><td>1</td><td>от 2</td></tr>
+      <tr><td class="row-header">КПП / шлагбаумов</td><td>до 2</td><td>до 5</td><td>до 10</td><td>без огр.</td></tr>
+      <tr><td class="row-header">Администраторов</td><td>2</td><td>5</td><td>15</td><td>без огр.</td></tr>
+      <tr><td class="row-header">Охранников</td><td>3</td><td>10</td><td>25</td><td>без огр.</td></tr>
+      <tr><td class="row-header">Гостевые QR / день</td><td>100</td><td>200</td><td>600</td><td>без огр.</td></tr>
+      <tr><td class="row-header">Архив событий</td><td>3 мес</td><td>12 мес</td><td>24 мес</td><td>бессрочно</td></tr>
+      <tr><td class="row-header">Жители и гости</td><td colspan="4" style="background: var(--green-soft); color: var(--green); font-weight: 700;">Без ограничений во всех тарифах</td></tr>
+
+      <tr class="group-title"><td colspan="5">Работа с пропусками</td></tr>
+      <tr><td class="row-header">Мобильное приложение жителя</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Группы адресов</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Импорт жителей (Excel/1С)</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Категории жителей</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+
+      <tr class="group-title"><td colspan="5">Интеграции и безопасность</td></tr>
+      <tr><td class="row-header">LPR (распознавание номеров)*</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Интеграция со СКУД</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Платный въезд / выезд</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Контроль времени на территории</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+
+      <tr class="group-title"><td colspan="5">API</td></tr>
+      <tr><td class="row-header">REST API</td><td class="no">○</td><td class="mark">Read-only</td><td class="mark">R / W</td><td class="mark">Полный</td></tr>
+      <tr><td class="row-header">Webhooks</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+
+      <tr class="group-title"><td colspan="5">Уведомления</td></tr>
+      <tr><td class="row-header">Push / Email</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">SMS-пакет / мес</td><td>—</td><td>500</td><td>2 000</td><td>10 000</td></tr>
+      <tr><td class="row-header">Telegram + Макс боты</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Брендированные шаблоны</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+
+      <tr class="group-title"><td colspan="5">Поддержка</td></tr>
+      <tr><td class="row-header">Email + база знаний + AI-ассистент</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Чат с поддержкой</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Выделенный номер телефона</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Закреплённый менеджер (CSM)</td><td class="no">○</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td></tr>
+
+      <tr class="group-title"><td colspan="5">Уникальные функции Мультиобъектного</td></tr>
+      <tr><td class="row-header">Единый кабинет всех объектов</td><td class="no">○</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Делегирование администрирования</td><td class="no">○</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Кроссобъектные маршруты пропусков</td><td class="no">○</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td></tr>
+      <tr><td class="row-header">Портфельные KPI и аналитика</td><td class="no">○</td><td class="no">○</td><td class="no">○</td><td class="yes">●</td></tr>
+    </tbody>
+  </table>
+
+  <div style="font-size: 7pt; color: var(--ink-2); margin-bottom: 4mm;">
+    * LPR работает при подключении ПАК PASS24.авто или стороннего LPR (Trassir, CVS, Ivideon, «Автомаршал»).
+  </div>
+
+  <div class="blocks">
+
+    <div class="block">
+      <div class="h">Подключаемые модули (опции)</div>
+      <ul>
+        <li><b>PASS24.Паркинг</b> — управление зонами, отчёты по загрузке. Доступен на Профессиональном и Мультиобъектном (со скидкой).</li>
+        <li><b>PASS24.Key</b> — цифровой ключ доступа BLE / NFC / QR. Доступен со Стандартного.</li>
+        <li><b>Кастомная разработка и интеграции</b> — на любом тарифе. На Мультиобъектном — пакет часов в подписке.</li>
+        <li><b>Интеграции с 1С / биллингами УК</b> — всегда платная услуга, ни в один тариф не включена. Стоимость — индивидуально.</li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <div class="h">Сопутствующие продукты</div>
+      <ul>
+        <li><b>PASS24.авто — ПАК Лайт</b> (базовый): 2 камеры, сервер LPR, пуско-наладка. <span class="price-tag">За 1 ₽</span> при 6-мес оплате тарифа «Базовый».</li>
+        <li><b>PASS24.авто — ПАК Базовый (ПЭМ)</b>: расширенная версия для крупных объектов. Цена и состав — у менеджера.</li>
+        <li><b>Удалённый администратор</b> — команда PASS24 ведёт пропускной режим объекта (заявки жителей, инциденты, отчёты УК). <span class="price-tag">от 35 000 ₽/мес</span>.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <h2>Что важно помнить менеджеру <span class="subtle">— ключевые правила</span></h2>
+
+  <div class="blocks">
+    <div class="block">
+      <div class="h">Биллинг и переходы</div>
+      <ul>
+        <li>Цена <b>фиксированная</b>: один SKU на тариф, без доплаты за КПП/админов/охрану.</li>
+        <li>При превышении лимита — <b>переход на следующий тариф целиком</b>, а не доплата за слот.</li>
+        <li>Единственный сверхлимит с доплатой — <b>SMS</b>: 3 000 ₽ за пакет 1 000 SMS.</li>
+        <li>Скидка <b>−10%</b> при оплате за 12 месяцев — работает на всех тарифах.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <div class="h">SLA техподдержки (одинаков для всех тарифов)</div>
+      <ul>
+        <li><b>Экстренные обращения</b> (полная неработоспособность): до 4 рабочих часов.</li>
+        <li><b>Обычные</b> (частичная работа): 24 ч — 5 дней.</li>
+        <li><b>Консультации</b>: 48 ч — 5 дней.</li>
+        <li>Приоритет привязан к <b>критичности обращения</b>, а не к тарифу. Дифференцируются только каналы (чат, телефон, CSM).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="left">PASS24.online · Тарифы 2026 · Шпаргалка для отдела продаж</div>
+    <div>Стр. 2 из 2 · pass24pro.ru</div>
+  </div>
+
+</div>
+
+</body>
+</html>
